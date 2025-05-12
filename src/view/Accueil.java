@@ -4,10 +4,7 @@
  */
 package view;
 
-/**
- *
- * @author kokoudevops
- */
+
 public class Accueil extends javax.swing.JFrame {
 
     /**
@@ -63,7 +60,6 @@ public class Accueil extends javax.swing.JFrame {
         myRestoButton.setBackground(new java.awt.Color(255, 204, 153));
         myRestoButton.setFont(new java.awt.Font("Liberation Sans", 1, 24)); // NOI18N
         myRestoButton.setText("MY RESTO");
-        myRestoButton.setActionCommand("MY RESTO");
         myRestoButton.setBorder(null);
         myRestoButton.setBorderPainted(false);
         jPanel1.add(myRestoButton);
@@ -82,6 +78,8 @@ public class Accueil extends javax.swing.JFrame {
         wind.setLocation(100,100);// definition de sa position par rapport au coins supérieur gauche de l'écran
         wind.setVisible(true);    //  jDialog rendu visible 
     }//GEN-LAST:event_playButtonActionPerformed
+
+
 
     /**
      * @param args the command line arguments

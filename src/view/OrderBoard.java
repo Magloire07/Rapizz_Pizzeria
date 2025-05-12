@@ -14,6 +14,10 @@ import controller.InventoryController;
 import model.Pizza;
 import model.Commande;
 import controller.CommandController;
+import controller.MenuController; 
+import controller.FicheLivraisonControlle; 
+import controller.DashboardController; 
+
 
 /**
  *
@@ -23,6 +27,9 @@ public class OrderBoard extends javax.swing.JFrame {
 
     private InventoryController inventoryController;
     private CommandController commandeController;
+    private MenuController menuController; 
+    private FicheLivraisonControlle flivs; 
+    private DashboardController dash ; 
 
     /**
      * Creates new form OrderBoard
@@ -31,6 +38,9 @@ public class OrderBoard extends javax.swing.JFrame {
         initComponents();
         inventoryController = new InventoryController(this);
         commandeController = new CommandController();
+        menuController= new MenuController(); 
+        flivs = new FicheLivraisonControlle(); 
+        dash= new DashboardController(); 
     }
 
     /**
@@ -72,9 +82,10 @@ public class OrderBoard extends javax.swing.JFrame {
         SSud = new javax.swing.JPanel();
         btValider = new javax.swing.JButton();
         Droite = new javax.swing.JPanel();
-        btLivraison = new javax.swing.JButton();
         btInventaire = new javax.swing.JButton();
         btDashB = new javax.swing.JButton();
+        btMenu = new javax.swing.JButton();
+        btFiche = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         listCmdPrete = new javax.swing.JList<>();
 
@@ -280,11 +291,6 @@ public class OrderBoard extends javax.swing.JFrame {
         Droite.setPreferredSize(new java.awt.Dimension(280, 759));
         Droite.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 30));
 
-        btLivraison.setText("LIVRAISON");
-        btLivraison.setMargin(new java.awt.Insets(2, 36, 2, 36));
-        btLivraison.setMinimumSize(new java.awt.Dimension(24, 24));
-        Droite.add(btLivraison);
-
         btInventaire.setText("INVENTAIRE");
         btInventaire.setMargin(new java.awt.Insets(2, 32, 2, 32));
         btInventaire.setMinimumSize(new java.awt.Dimension(24, 24));
@@ -298,7 +304,32 @@ public class OrderBoard extends javax.swing.JFrame {
         btDashB.setText("DASHBOARD");
         btDashB.setMargin(new java.awt.Insets(2, 30, 2, 30));
         btDashB.setMinimumSize(new java.awt.Dimension(24, 24));
+        btDashB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btDashBActionPerformed(evt);
+            }
+        });
         Droite.add(btDashB);
+
+        btMenu.setLabel("MENU");
+        btMenu.setMargin(new java.awt.Insets(2, 50, 2, 50));
+        btMenu.setMaximumSize(new java.awt.Dimension(155, 24));
+        btMenu.setMinimumSize(new java.awt.Dimension(24, 24));
+        btMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btMenuActionPerformed(evt);
+            }
+        });
+        Droite.add(btMenu);
+
+        btFiche.setText("Fiche livraison");
+        btFiche.setMargin(new java.awt.Insets(2, 24, 2, 24));
+        btFiche.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btFicheActionPerformed(evt);
+            }
+        });
+        Droite.add(btFiche);
 
         jScrollPane3.setPreferredSize(new java.awt.Dimension(250, 410));
 
@@ -307,7 +338,7 @@ public class OrderBoard extends javax.swing.JFrame {
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        listCmdPrete.setPreferredSize(new java.awt.Dimension(200, 380));
+        listCmdPrete.setPreferredSize(new java.awt.Dimension(200, 370));
         jScrollPane3.setViewportView(listCmdPrete);
 
         Droite.add(jScrollPane3);
@@ -336,6 +367,21 @@ public class OrderBoard extends javax.swing.JFrame {
     private void btInventaireActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInventaireActionPerformed
         inventoryController.showInventoryWindow();
     }//GEN-LAST:event_btInventaireActionPerformed
+
+    private void btMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btMenuActionPerformed
+        // TODO add your handling code here:
+        menuController.showMenuWindow();       
+    }//GEN-LAST:event_btMenuActionPerformed
+
+    private void btDashBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDashBActionPerformed
+        // TODO add your handling code here:
+        dash.showDash(); 
+    }//GEN-LAST:event_btDashBActionPerformed
+
+    private void btFicheActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFicheActionPerformed
+        // TODO add your handling code here:
+        flivs.showFicheLivraison(); 
+    }//GEN-LAST:event_btFicheActionPerformed
     public void setSolde(double solde) {
         soldeText.setText("Solde Actuel: " + solde + "€");
     }
@@ -381,40 +427,40 @@ public class OrderBoard extends javax.swing.JFrame {
         currentCommand.setText(commande);
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    // /**
+    //  * @param args the command line arguments
+    //  */
+    // public static void main(String args[]) {
+    //     /* Set the Nimbus look and feel */
+    //     //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+    //     /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+    //      * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+    //      */
+    //     try {
+    //         for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+    //             if ("Nimbus".equals(info.getName())) {
+    //                 javax.swing.UIManager.setLookAndFeel(info.getClassName());
+    //                 break;
+    //             }
+    //         }
+    //     } catch (ClassNotFoundException ex) {
+    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    //     } catch (InstantiationException ex) {
+    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    //     } catch (IllegalAccessException ex) {
+    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    //     } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    //     }
+    //     //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new OrderBoard().setVisible(true);
-            }
-        });
-    }
+    //     /* Create and display the form */
+    //     java.awt.EventQueue.invokeLater(new Runnable() {
+    //         public void run() {
+    //             new OrderBoard().setVisible(true);
+    //         }
+    //     });
+    // }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel CCentreListPizza;
@@ -426,8 +472,9 @@ public class OrderBoard extends javax.swing.JFrame {
     private javax.swing.JPanel SNord;
     private javax.swing.JPanel SSud;
     private javax.swing.JButton btDashB;
+    private javax.swing.JButton btFiche;
     private javax.swing.JButton btInventaire;
-    private javax.swing.JButton btLivraison;
+    private javax.swing.JButton btMenu;
     private javax.swing.JButton btSizeL;
     private javax.swing.JButton btSizeM;
     private javax.swing.JButton btSizeS;
