@@ -32,10 +32,15 @@ public class Accueil extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(1200, 800));
         setResizable(false);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().setLayout(null); // Use null layout for manual positioning
 
-        jPanel1.setOpaque(false);
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Pizza-3007395.jpg"))); // NOI18N
+        jLabel1.setBounds(0, 0, 1200, 800); // Set bounds for the background image
+        getContentPane().add(jLabel1);
+
+        jPanel1.setOpaque(false); // Make the panel transparent
         jPanel1.setLayout(new java.awt.GridLayout(3, 1, 0, 8));
+        jPanel1.setBounds(320, 210, 620, 460); // Set bounds for the panel
 
         playButton.setBackground(new java.awt.Color(204, 255, 204));
         playButton.setFont(new java.awt.Font("LM Sans 9", 1, 48)); // NOI18N
@@ -64,10 +69,7 @@ public class Accueil extends javax.swing.JFrame {
         myRestoButton.setBorderPainted(false);
         jPanel1.add(myRestoButton);
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 620, 460));
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Pizza-3007395.jpg"))); // NOI18N
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        getContentPane().add(jPanel1); // Add the panel after the background image
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

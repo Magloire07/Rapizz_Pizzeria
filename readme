@@ -1,0 +1,8 @@
+############## Compilation ##########################
+
+javac -d build $(find src -name "*.java") && cp -r src/images build/
+
+#############  Exécution   ############################
+
+java -cp build main.Main
+
