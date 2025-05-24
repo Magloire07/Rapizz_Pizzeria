@@ -127,7 +127,7 @@ public class InventoryController {
             manageStockFrame.add(accountBalanceValue);
             manageStockFrame.add(orderButton);
             manageStockFrame.add(cancelButton);
-
+ 
             manageStockFrame.setLocationRelativeTo(null);
             manageStockFrame.setVisible(true);
         });

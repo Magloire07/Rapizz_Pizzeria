@@ -20,7 +20,7 @@ public class Commande {
     public String getNomClient() {
         return nomClient;
     }
-
+ 
     public void setNomClient(String nomClient) {
         this.nomClient = nomClient;
     }
@@ -60,10 +60,10 @@ public class Commande {
     // toString method
     @Override
     public String toString() {
-        return "NOM_CLIENT: " + nomClient + "\n" +
-               "Nom Pizza: " + nomPizza + "\n" +
-               "SoldeClient: " + soldeClient + "€\n" +
-               "N°: " + String.format("%04d", numeroCommande) + "\n" +
-               "Taille: " + taille;
+        return "Client : " + nomClient + "\n"
+             + "Pizza  : " + nomPizza + "\n"
+             + "Solde  : " + String.format("%.2f", soldeClient) + "€\n"
+             + "Commande N°: " + String.format("%04d", numeroCommande) + "\n"
+             + "Taille : " + (taille != null ? taille : "Non spécifiée");
     }
 }

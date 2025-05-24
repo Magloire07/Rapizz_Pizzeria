@@ -37,7 +37,7 @@ CREATE TABLE [INGREDIENT] (
     CONSTRAINT [PK_INGREDIENT] PRIMARY KEY CLUSTERED (
         [id_ingredient] ASC
     )
-)
+) 
 
 CREATE TABLE [COMMANDE] (
     [num_commande] int  NOT NULL ,

@@ -7,7 +7,7 @@ import model.Commande;
 import java.util.ArrayList;
 import java.util.List;
 import model.CommandeManager;
-
+ 
 public class CommandController {
     private List<Commande> waitingCommand;
     private List<Commande> readyCommands;

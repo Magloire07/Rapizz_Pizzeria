@@ -51,7 +51,7 @@ public class PIzzaDAO extends BaseModel {
             stmt.executeUpdate();
         }
     }
-
+ 
     public void deletePizza(int idPizza) throws SQLException {
         String sql = "DELETE FROM Pizza WHERE idPizza = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {

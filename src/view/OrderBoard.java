@@ -51,9 +51,55 @@ public class OrderBoard extends javax.swing.JFrame {
         flivs = new FicheLivraisonControlle();
         dash = new DashboardController();
 
+        // Initialize waiting commands and UI lists
+        commandeController.initWaitingCommand();
+        updateOrderLists();
+
         // Show the first random order to start the game
         showRandomCommande();
         setSolde(solde);
+    }
+
+    /**
+     * Updates both the waiting and ready command lists in the UI.
+     */
+    public void updateOrderLists() {
+        // Waiting commands
+        List<Commande> waiting = commandeController.getWaitingCommands();
+        DefaultListModel<String> waitingModel = new DefaultListModel<>();
+        for (Commande cmd : waiting) {
+            waitingModel.addElement(cmd.getNomClient() + " - N°: " + String.format("%04d", cmd.getNumeroCommande()));
+        }
+        lstCmdAttent.setModel(waitingModel);
+
+        // Ready commands
+        List<Commande> ready = commandeController.getReadyCommands();
+        DefaultListModel<String> readyModel = new DefaultListModel<>();
+        for (Commande cmd : ready) {
+            readyModel.addElement("N°: " + String.format("%04d", cmd.getNumeroCommande()));
+        }
+        listCmdPrete.setModel(readyModel);
+    }
+
+    /**
+     * Shows a random waiting order to the user.
+     */
+    public void showRandomCommande() {
+        List<Commande> waiting = commandeController.getWaitingCommands();
+        if (waiting.isEmpty()) {
+            // Refill the waiting commands if empty
+            commandeController.initWaitingCommand();
+            waiting = commandeController.getWaitingCommands();
+            updateOrderLists(); // <-- Add this line to refresh the UI
+        }
+        if (!waiting.isEmpty()) {
+            int idx = (int) (Math.random() * waiting.size());
+            currentCommande = waiting.get(idx);
+            setCurrentCommand(currentCommande.toString());
+        } else {
+            currentCommande = null;
+            setCurrentCommand("Aucune commande en attente.");
+        }
     }
 
     /**
@@ -463,21 +509,21 @@ public class OrderBoard extends javax.swing.JFrame {
         CCentreListPizza.repaint();
     }
 
-    public void setListCmdPrete(List<Commande> commandes) {
-        DefaultListModel<String> model = new DefaultListModel<>();
-        for (Commande cmd : commandes) {
-            model.addElement("N°: " + String.format("%04d", cmd.getNumeroCommande()));
-        }
-        listCmdPrete.setModel(model);
-    }
-    public void setListCmdAttent() {
-        ArrayList<Commande> commandes = commandeController.getRandomCmd();
-        DefaultListModel<String> model = new DefaultListModel<>();
-        for (Commande commande : commandes) {
-            model.addElement(commande.getNomClient() + " - N°: " + commande.getNumeroCommande());
-        }
-        lstCmdAttent.setModel(model);
-    }
+    // public void setListCmdPrete(List<Commande> commandes) {
+    //     DefaultListModel<String> model = new DefaultListModel<>();
+    //     for (Commande cmd : commandes) {
+    //         model.addElement("N°: " + String.format("%04d", cmd.getNumeroCommande()));
+    //     }
+    //     listCmdPrete.setModel(model);
+    // }
+    // public void setListCmdAttent() {
+    //     ArrayList<Commande> commandes = commandeController.getRandomCmd();
+    //     DefaultListModel<String> model = new DefaultListModel<>();
+    //     for (Commande commande : commandes) {
+    //         model.addElement(commande.getNomClient() + " - N°: " + commande.getNumeroCommande());
+    //     }
+    //     lstCmdAttent.setModel(model);
+    // }
     public void setCurrentCommand(String commande) {
         currentCommand.setText(commande);
     }
@@ -485,14 +531,14 @@ public class OrderBoard extends javax.swing.JFrame {
     // Call this in your constructor or after each validation to show a new random commande
     // showRandomCommande();
 
-    // When the user clicks "VALIDER", process the current commande
+    /**
+     * Handles the validation of the current command and continues the game loop.
+     */
     private void btValiderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btValiderActionPerformed
-        // Check if there is a current order to process
         if (currentCommande == null) {
             JOptionPane.showMessageDialog(this, "Aucune commande à traiter !");
             return;
         }
-        // Check if user selected pizza and size
         if (selectedPizza == null) {
             JOptionPane.showMessageDialog(this, "Veuillez sélectionner une pizza !");
             return;
@@ -502,45 +548,42 @@ public class OrderBoard extends javax.swing.JFrame {
             return;
         }
 
-        // Simulate pizza preparation (progress bar)
+        // Simulate pizza preparation
         JProgressBar progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
         JOptionPane pane = new JOptionPane(progressBar, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
-        final JDialog[] dialogPrep = new JDialog[1];
-        dialogPrep[0] = pane.createDialog(this, "Préparation de la pizza...");
+        final JDialog dialogPrep = pane.createDialog(this, "Préparation de la pizza...");
         new Thread(() -> {
             for (int i = 0; i <= 100; i += 10) {
                 try { Thread.sleep(150); } catch (InterruptedException ignored) {}
                 progressBar.setValue(i);
             }
-            dialogPrep[0].dispose();
+            dialogPrep.dispose();
         }).start();
-        dialogPrep[0].setVisible(true);
+        dialogPrep.setVisible(true);
 
-        // Simulate delivery (progress bar)
+        // Simulate delivery
         progressBar.setValue(0);
         pane.setMessage(progressBar);
-        final JDialog[] dialogLiv = new JDialog[1];
-        dialogLiv[0] = pane.createDialog(this, "Livraison en cours...");
+        final JDialog dialogLiv = pane.createDialog(this, "Livraison en cours...");
         new Thread(() -> {
             for (int i = 0; i <= 100; i += 10) {
                 try { Thread.sleep(120); } catch (InterruptedException ignored) {}
                 progressBar.setValue(i);
             }
-            dialogLiv[0].dispose();
+            dialogLiv.dispose();
         }).start();
-        dialogLiv[0].setVisible(true);
+        dialogLiv.setVisible(true);
 
-        // Update wallet/solde
-        solde += selectedPizza.getPrice();
+        // Update wallet/solde (simulate payment)
+        solde -= selectedPizza.getPrice(); // Use -= if you want to deduct, += if you want to add
         setSolde(solde);
 
-        // Move the order to ready list (simulate)
+        // Move the order to ready list
         commandeController.validateCommand(currentCommande);
 
         // Update UI lists
-        setListCmdPrete(commandeController.getReadyCommands());
-        setListCmdAttent();
+        updateOrderLists();
 
         // Reset selections
         selectedPizza = null;
@@ -549,19 +592,6 @@ public class OrderBoard extends javax.swing.JFrame {
         // Show next random order
         showRandomCommande();
     }//GEN-LAST:event_btValiderActionPerformed
-
-    // Show a random waiting order to the user
-    public void showRandomCommande() {
-        ArrayList<Commande> waiting = commandeController.getRandomCmd();
-        if (!waiting.isEmpty()) {
-            int idx = (int) (Math.random() * waiting.size());
-            currentCommande = waiting.get(idx);
-            setCurrentCommand(currentCommande.toString());
-        } else {
-            currentCommande = null;
-            setCurrentCommand("Aucune commande en attente.");
-        }
-    }
 
     // /**
     //  * @param args the command line arguments

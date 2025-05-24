@@ -1,8 +1,9 @@
 ############## Compilation ##########################
 
 javac -d build $(find src -name "*.java") && cp -r src/images build/
+(with database connexion) javac -cp .:lib/mysql-connector-java-9.3.0.jar -d build $(find src -name "*.java") && cp -r src/images build/
 
 #############  Exécution   ############################
 
 java -cp build main.Main
-
+(with database connexion) java -cp lib/mysql-connector-java-9.3.0.jar:build main.Main

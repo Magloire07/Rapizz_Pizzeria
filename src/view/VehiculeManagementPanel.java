@@ -125,7 +125,7 @@ public class VehiculeManagementPanel extends JPanel {
             }
         });
     }
-
+ 
     private void refreshTable() {
         controller.loadVehicules(tableModel);
     }

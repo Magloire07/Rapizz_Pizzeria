@@ -39,7 +39,7 @@ public class FicheLivraisonControlle {
             {"Alice Brown", "Bicycle", "Robert Johnson", "2023-10-02T12:15", "No delay", "Margherita", "8.5"},
             {"Michael Green", "Car", "Emily Davis", "2023-10-03T20:45", "5 minutes", "Vegetarian", "9.0"}
         };
-
+ 
         sb.append("  === Fiche de Livraison ===\n\n");
         for (String[] delivery : deliveries) {
             sb.append(String.format(

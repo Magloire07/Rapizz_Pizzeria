@@ -39,7 +39,7 @@ public class VehiculeDAO extends BaseModel {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+    } 
 
     public void updateVehicule(Vehicule v) {
         String sql = "UPDATE vehicules SET marque=?, modele=?, type=?, disponible=? WHERE id_vehicule=?";

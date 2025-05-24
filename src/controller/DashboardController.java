@@ -97,7 +97,7 @@ public class DashboardController {
             for (Commande c : commandes) {
                 pizzaCount.put(c.getNomPizza(), pizzaCount.getOrDefault(c.getNomPizza(), 0) + 1);
             }
-
+ 
             String resultPizza = null;
             int resultCount = mostDemanded ? -1 : Integer.MAX_VALUE;
             for (Pizza p : pizzas) {

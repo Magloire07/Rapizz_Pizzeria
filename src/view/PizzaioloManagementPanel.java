@@ -113,7 +113,7 @@ public class PizzaioloManagementPanel extends JPanel {
             }
         });
     }
-
+ 
     private void refreshTable() {
         controller.loadPizzaiolos(tableModel);
     }

@@ -1,5 +1,5 @@
 package view;
-
+ 
 import javax.swing.*;
 
 public class ManagementWindow extends JFrame {

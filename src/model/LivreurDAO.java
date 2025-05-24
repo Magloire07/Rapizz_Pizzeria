@@ -28,7 +28,7 @@ public class LivreurDAO extends BaseModel {
         }
         return livreurs;
     }
-
+ 
     public void addLivreur(Livreur l) {
         String sql = "INSERT INTO livreurs (nom, prenom, nombre_livraisons, duree_livraisons, id_vehicule) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();

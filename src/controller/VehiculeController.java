@@ -25,7 +25,7 @@ public class VehiculeController {
                 v.isDisponible()
             });
         }
-    }
+    } 
 
     public void addVehicule(String marque, String modele, String type, boolean disponible) {
         Vehicule v = new Vehicule(marque, modele, type, disponible);

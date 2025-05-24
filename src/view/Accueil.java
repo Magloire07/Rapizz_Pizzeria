@@ -3,9 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package view;
-
+ 
 import javax.swing.JButton;
 import view.ManagementWindow;
+import utils.DatabaseManager;
+import java.sql.Connection;
+
 
 public class Accueil extends javax.swing.JFrame {
 
@@ -14,6 +17,14 @@ public class Accueil extends javax.swing.JFrame {
      */
     public Accueil() {
         initComponents();
+
+        // Test database connection
+        Connection conn = DatabaseManager.getConnection();
+        if (conn != null) {
+            System.out.println("Connected from Accueil!");
+            // Don't forget to close the connection when done
+            try { conn.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
 
         // Add your custom Gestion button here
         JButton gestionButton = new JButton("Gestion");

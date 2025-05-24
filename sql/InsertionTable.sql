@@ -12,7 +12,7 @@ INSERT INTO INGREDIENT VALUES ([ID_INGREDIENT], [NOM], [ALLERGENE]);
 -- Pour insérer un véhicule
 INSERT INTO VEHICULE VALUES ([ID_VEHICULE], [TYPE], [IMMATRICULATION], [NOMBRE_LIVRAISONS], [DUREE]);
 
--- Pour insérer un livreur
+-- Pour insérer un livreur 
 INSERT INTO LIVREUR VALUES ([ID_LIVREUR], [NOM], [PRENOM], [NOMBRE_LIVRAISONS], [DUREE_LIVRAISONS]);
 
 -- Pour insérer une commande

@@ -10,7 +10,7 @@ WHERE C.id_pizza = 101;
 
 
 -- Voir l'historique de livraison d'un livreur
-SELECT L.*, V.type, V.immatriculation
+SELECT L.*, V.type, V.immatriculation 
 FROM LIVRAISON L
 JOIN LIVRER LR ON L.id_livraison = LR.id_livraison
 JOIN COMMANDE C ON C.num_commande = LR.num_commande

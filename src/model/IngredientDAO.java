@@ -21,7 +21,7 @@ public class IngredientDAO extends BaseModel {
             stmt.setDouble(3, price);
             stmt.executeUpdate();
         }
-    }
+    } 
 
     /**
      * Returns all ingredients as simple string representations.

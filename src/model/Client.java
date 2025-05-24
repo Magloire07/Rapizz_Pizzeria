@@ -77,4 +77,4 @@ public class Client {
                ", cagnote=" + cagnote +
                '}';
     }
-}
+}  

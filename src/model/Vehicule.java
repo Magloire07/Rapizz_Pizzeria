@@ -39,7 +39,7 @@ public class Vehicule {
     public void setModele(String modele) {
         this.modele = modele;
     }
-
+ 
     public String getType() {
         return type;
     }

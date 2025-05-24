@@ -23,7 +23,7 @@ public class LivreurController {
                 l.getPrenom(),
                 l.getNombreLivraisons(),
                 l.getDureeLivraisons(),
-                l.getIdVehicule()
+                l.getIdVehicule() 
             });
         }
     }
