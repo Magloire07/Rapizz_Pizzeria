@@ -40,4 +40,8 @@ public class VehiculeController {
     public void deleteVehicule(int id) {
         vehiculeDAO.deleteVehicule(id);
     }
+
+    public List<Vehicule> getAllVehicules() {
+        return vehiculeDAO.readAllVehicules();
+    }
 }

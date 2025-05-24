@@ -56,3 +56,11 @@ CREATE TABLE IF NOT EXISTS Ingredient (
     quantity INT,
     price DOUBLE
 );
+
+CREATE TABLE IF NOT EXISTS Composer (
+    idPizza INT,
+    idIngredient INT,
+    PRIMARY KEY (idPizza, idIngredient),
+    FOREIGN KEY (idPizza) REFERENCES Pizza(idPizza),
+    FOREIGN KEY (idIngredient) REFERENCES Ingredient(idIngredient)
+);

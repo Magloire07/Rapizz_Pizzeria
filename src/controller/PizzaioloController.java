@@ -39,4 +39,8 @@ public class PizzaioloController {
     public void deletePizzaiolo(int id) {
         pizzaioloDAO.deletePizzaiolo(id);
     }
-} 
+
+    public List<Pizzaiolo> getAllPizzaiolos() {
+        return pizzaioloDAO.readAllPizzaiolos();
+    }
+}

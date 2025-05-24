@@ -18,6 +18,13 @@ import controller.CommandController;
 import controller.MenuController; 
 import controller.FicheLivraisonControlle; 
 import controller.DashboardController; 
+import controller.PizzaioloController;
+import controller.LivreurController;
+import controller.VehiculeController;
+import model.Pizzaiolo;
+import model.Livreur;
+import model.Vehicule;
+import model.PersonnelManager;
 
 
 /**
@@ -40,10 +47,31 @@ public class OrderBoard extends javax.swing.JFrame {
     private Commande currentCommande;
     private double solde = 10000.0; // Initial wallet
 
+    // Ajouts en haut de la classe
+    private DefaultListModel<String> notificationModel = new DefaultListModel<>();
+    private JList<String> notificationList = new JList<>(notificationModel);
+    private JPanel pizzaioloProgressPanel = new JPanel(new GridLayout(0, 1));
+    private JPanel livreurProgressPanel = new JPanel(new GridLayout(0, 1));
+    private Timer commandeTimer;
+    private int commandesLivrees = 0;
+    private int satisfaction = 100; // Pourcentage fictif
+    private JLabel statsLabel = new JLabel("Commandes livrées: 0 | Satisfaction: 100%");
+
+    // Simulations de listes de personnel/véhicules
+    private List<String> pizzaiolos = new ArrayList<>();
+    private List<String> livreurs = new ArrayList<>();
+    private List<String> vehicules = new ArrayList<>();
+    private JPanel synthesePanel = new JPanel(new GridLayout(0, 1));
+
+    // New field to track command arrival times
+    private java.util.Map<Commande, Long> commandeArriveeTime = new java.util.HashMap<>();
+
     /**
      * Creates new form OrderBoard
      */
     public OrderBoard() {
+        
+        utils.DatabaseInitializer.initialize();
         initComponents();
         inventoryController = new InventoryController(this);
         commandeController = new CommandController();
@@ -58,6 +86,49 @@ public class OrderBoard extends javax.swing.JFrame {
         // Show the first random order to start the game
         showRandomCommande();
         setSolde(solde);
+
+        Droite.add(new JLabel("Notifications:"));
+        notificationList.setPreferredSize(new Dimension(250, 80));
+        Droite.add(new JScrollPane(notificationList));
+
+        Droite.add(new JLabel("Préparation:"));
+        pizzaioloProgressPanel.setPreferredSize(new Dimension(250, 40));
+        Droite.add(pizzaioloProgressPanel);
+
+        Droite.add(new JLabel("Livraison:"));
+        livreurProgressPanel.setPreferredSize(new Dimension(250, 40));
+        Droite.add(livreurProgressPanel);
+
+        Droite.add(statsLabel);
+
+        // Boutons gestion personnel/véhicules
+        JButton gestionButton = new JButton("Gestion du Personnel & Véhicules");
+        gestionButton.addActionListener(e -> {
+            ManagementWindow window = new ManagementWindow();
+            window.setVisible(true);
+        });
+        Droite.add(gestionButton);
+
+        JButton manageStockButton = new JButton("Réapprovisionner le stock");
+        manageStockButton.addActionListener(e -> inventoryController.showInventoryWindow());
+        Droite.add(manageStockButton);
+
+        Droite.add(new JLabel("Synthèse Personnel/Véhicules:"));
+        Droite.add(synthesePanel);
+        updateSynthesePanel();
+
+        // Génération régulière de commandes (toutes les 20 secondes)
+        commandeTimer = new Timer(20000, e -> {
+            commandeController.genererCommandeAleatoireEtRafraichir();
+            updateOrderLists();
+            notificationModel.addElement("Nouvelle commande reçue !");
+        });
+        commandeTimer.start();
+
+        retardTimer.start();
+
+        // After all other initializations
+        initPizzaPanel();
     }
 
     /**
@@ -69,6 +140,8 @@ public class OrderBoard extends javax.swing.JFrame {
         DefaultListModel<String> waitingModel = new DefaultListModel<>();
         for (Commande cmd : waiting) {
             waitingModel.addElement(cmd.getNomClient() + " - N°: " + String.format("%04d", cmd.getNumeroCommande()));
+            // Enregistre le temps d'arrivée si pas déjà fait
+            commandeArriveeTime.putIfAbsent(cmd, System.currentTimeMillis());
         }
         lstCmdAttent.setModel(waitingModel);
 
@@ -405,13 +478,6 @@ public class OrderBoard extends javax.swing.JFrame {
         });
         Droite.add(btFiche);
 
-        JButton gestionButton = new JButton("Gestion");
-        gestionButton.addActionListener(e -> {
-            ManagementWindow window = new ManagementWindow();
-            window.setVisible(true);
-        });
-        Droite.add(gestionButton); // Or add to your preferred panel
-
         jScrollPane3.setPreferredSize(new java.awt.Dimension(250, 410));
 
         listCmdPrete.setModel(new javax.swing.AbstractListModel<String>() {
@@ -484,30 +550,30 @@ public class OrderBoard extends javax.swing.JFrame {
         soldeText.setText("Solde Actuel: " + solde + "€");
     }
 
-    public void setListPizza(ArrayList<Pizza> listPizza) {
-        CCentreListPizza.removeAll();
-        CCentreListPizza.setLayout(new java.awt.GridLayout(listPizza.size(), 1, 0, 5));
+    // public void setListPizza(ArrayList<Pizza> listPizza) {
+    //     CCentreListPizza.removeAll();
+    //     CCentreListPizza.setLayout(new java.awt.GridLayout(listPizza.size(), 1, 0, 5));
 
-        for (Pizza pizza : listPizza) {
-            JPanel pizzaPanel = new JPanel(new java.awt.GridLayout(1, 2));
-            JButton pizzaImage = new JButton();
-            pizzaImage.setIcon(new javax.swing.ImageIcon("src/images/" + pizza.getImagePath())); // Assuming Pizza has getImagePath()
-            pizzaImage.setBorder(null);
-            pizzaImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    //     for (Pizza pizza : listPizza) {
+    //         JPanel pizzaPanel = new JPanel(new java.awt.GridLayout(1, 2));
+    //         JButton pizzaImage = new JButton();
+    //         pizzaImage.setIcon(new javax.swing.ImageIcon("src/images/" + pizza.getImagePath()));
+    //         pizzaImage.setBorder(null);
+    //         pizzaImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
-            JTextArea pizzaDetails = new JTextArea();
-            pizzaDetails.setText(pizza.getName() + "\n" + pizza.getPrice() + "€"); // Assuming Pizza has getName() and getPrice()
-            pizzaDetails.setFocusable(false);
-            pizzaDetails.setAutoscrolls(false);
+    //         JTextArea pizzaDetails = new JTextArea();
+    //         pizzaDetails.setText(pizza.getName() + "\n" + pizza.getPrice() + "€"); // Assuming Pizza has getName() and getPrice()
+    //         pizzaDetails.setFocusable(false);
+    //         pizzaDetails.setAutoscrolls(false);
 
-            pizzaPanel.add(pizzaImage);
-            pizzaPanel.add(new JScrollPane(pizzaDetails));
-            CCentreListPizza.add(pizzaPanel);
-        }
+    //         pizzaPanel.add(pizzaImage);
+    //         pizzaPanel.add(new JScrollPane(pizzaDetails));
+    //         CCentreListPizza.add(pizzaPanel);
+    //     }
 
-        CCentreListPizza.revalidate();
-        CCentreListPizza.repaint();
-    }
+    //     CCentreListPizza.revalidate();
+    //     CCentreListPizza.repaint();
+    // }
 
     // public void setListCmdPrete(List<Commande> commandes) {
     //     DefaultListModel<String> model = new DefaultListModel<>();
@@ -534,7 +600,7 @@ public class OrderBoard extends javax.swing.JFrame {
     /**
      * Handles the validation of the current command and continues the game loop.
      */
-    private void btValiderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btValiderActionPerformed
+    private void btValiderActionPerformed(java.awt.event.ActionEvent evt) {
         if (currentCommande == null) {
             JOptionPane.showMessageDialog(this, "Aucune commande à traiter !");
             return;
@@ -547,49 +613,25 @@ public class OrderBoard extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Veuillez sélectionner une taille !");
             return;
         }
+        // Vérification du stock
+        if (!inventoryController.hasEnoughIngredients(selectedPizza)) {
+            notificationModel.addElement("Stock insuffisant pour " + selectedPizza.getName());
+            return;
+        }
+        inventoryController.deductIngredients(selectedPizza);
 
-        // Simulate pizza preparation
-        JProgressBar progressBar = new JProgressBar(0, 100);
-        progressBar.setStringPainted(true);
-        JOptionPane pane = new JOptionPane(progressBar, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
-        final JDialog dialogPrep = pane.createDialog(this, "Préparation de la pizza...");
-        new Thread(() -> {
-            for (int i = 0; i <= 100; i += 10) {
-                try { Thread.sleep(150); } catch (InterruptedException ignored) {}
-                progressBar.setValue(i);
-            }
-            dialogPrep.dispose();
-        }).start();
-        dialogPrep.setVisible(true);
-
-        // Simulate delivery
-        progressBar.setValue(0);
-        pane.setMessage(progressBar);
-        final JDialog dialogLiv = pane.createDialog(this, "Livraison en cours...");
-        new Thread(() -> {
-            for (int i = 0; i <= 100; i += 10) {
-                try { Thread.sleep(120); } catch (InterruptedException ignored) {}
-                progressBar.setValue(i);
-            }
-            dialogLiv.dispose();
-        }).start();
-        dialogLiv.setVisible(true);
-
-        // Update wallet/solde (simulate payment)
-        solde -= selectedPizza.getPrice(); // Use -= if you want to deduct, += if you want to add
-        setSolde(solde);
-
-        // Move the order to ready list
+        // 1. Valider la commande (déplace dans la liste des prêtes)
         commandeController.validateCommand(currentCommande);
 
-        // Update UI lists
+        PersonnelManager personnel = PersonnelManager.getInstance();
+        if (personnel.getPizzaioloDisponible() != null) {
+            lancerPreparation(currentCommande);
+            notificationModel.addElement("Préparation lancée pour la commande " + currentCommande.getNumeroCommande());
+        } else {
+            notificationModel.addElement("Aucun pizzaiolo disponible, la commande reste en attente.");
+            // La commande reste dans la file d'attente, rien à faire de plus
+        }
         updateOrderLists();
-
-        // Reset selections
-        selectedPizza = null;
-        selectedSize = null;
-
-        // Show next random order
         showRandomCommande();
     }//GEN-LAST:event_btValiderActionPerformed
 
@@ -666,4 +708,228 @@ public class OrderBoard extends javax.swing.JFrame {
     private javax.swing.JButton photoPiz2;
     private javax.swing.JLabel soldeText;
     // End of variables declaration//GEN-END:variables
+
+    public void updateSynthesePanel() {
+        synthesePanel.removeAll();
+        PersonnelManager personnel = PersonnelManager.getInstance();
+        for (PersonnelManager.PizzaioloState p : personnel.getPizzaiolos()) {
+            String etat = p.available ? "Disponible" : "Occupé";
+            synthesePanel.add(new JLabel("Pizzaiolo: " + p.name + " | " + etat));
+        }
+        for (PersonnelManager.LivreurState l : personnel.getLivreurs()) {
+            String etat = l.available ? "Disponible" : "Occupé";
+            synthesePanel.add(new JLabel("Livreur: " + l.name + " | " + etat));
+        }
+        synthesePanel.revalidate();
+        synthesePanel.repaint();
+    }
+    
+    private void lancerPreparation(Commande commande) {
+        PersonnelManager personnel = PersonnelManager.getInstance();
+        PersonnelManager.PizzaioloState pizzaiolo = personnel.getPizzaioloDisponible();
+        if (pizzaiolo == null) {
+            notificationModel.addElement("Aucun pizzaiolo disponible !");
+            return;
+        }
+        personnel.assignerCommandePizzaiolo(pizzaiolo, commande);
+
+        JProgressBar prepBar = new JProgressBar(0, 100);
+        prepBar.setString(pizzaiolo.name + " prépare " + commande.getNomPizza());
+        prepBar.setStringPainted(true);
+        pizzaioloProgressPanel.add(prepBar);
+        pizzaioloProgressPanel.revalidate();
+        pizzaioloProgressPanel.repaint();
+
+        // Préparation en thread séparé
+        new Thread(() -> {
+            for (int i = 0; i <= 100; i += 10) {
+                try { Thread.sleep(150); } catch (InterruptedException ignored) {}
+                prepBar.setValue(i);
+            }
+            // Fin de préparation
+            SwingUtilities.invokeLater(() -> {
+                pizzaioloProgressPanel.remove(prepBar);
+                pizzaioloProgressPanel.revalidate();
+                pizzaioloProgressPanel.repaint();
+                notificationModel.addElement("Pizza prête par " + pizzaiolo.name + " !");
+                personnel.libererPizzaiolo(pizzaiolo); // Libération
+                updateSynthesePanel();
+                assignerLivreur(commande); // Enchaîne sur la livraison
+            });
+        }).start();
+    }
+
+    private void assignerLivreur(Commande commande) {
+        PersonnelManager personnel = PersonnelManager.getInstance();
+        PersonnelManager.LivreurState livreur = personnel.getLivreurDisponible();
+        Vehicule vehicule = getVehiculeDisponible(); // New method to get a free vehicule
+
+        if (livreur == null) {
+            notificationModel.addElement("Aucun livreur disponible !");
+            return;
+        }
+        if (vehicule == null) {
+            notificationModel.addElement("Aucun véhicule disponible !");
+            return;
+        }
+
+        personnel.assignerCommandeLivreur(livreur, commande);
+        setVehiculeOccupe(vehicule, true); // Mark vehicule as occupied
+
+        JProgressBar livBar = new JProgressBar(0, 100);
+        livBar.setString(livreur.name + " livre " + commande.getNomPizza() + " avec " + vehicule.getMarque() + " " + vehicule.getModele());
+        livBar.setStringPainted(true);
+        livreurProgressPanel.add(livBar);
+        livreurProgressPanel.revalidate();
+        livreurProgressPanel.repaint();
+
+        new Thread(() -> {
+            for (int i = 0; i <= 100; i += 10) {
+                try { Thread.sleep(120); } catch (InterruptedException ignored) {}
+                livBar.setValue(i);
+            }
+            SwingUtilities.invokeLater(() -> {
+                livreurProgressPanel.remove(livBar);
+                livreurProgressPanel.revalidate();
+                livreurProgressPanel.repaint();
+                notificationModel.addElement("Commande livrée par " + livreur.name + " avec " + vehicule.getMarque() + " " + vehicule.getModele() + " !");
+                personnel.libererLivreur(livreur);
+                setVehiculeOccupe(vehicule, false); // Free the vehicule
+
+                // Ajout du prix de la commande au portefeuille
+                double prixCommande = getPrixCommande(commande);
+                solde += prixCommande;
+                setSolde(solde);
+                notificationModel.addElement("+" + prixCommande + "€ ajoutés au portefeuille (livraison).");
+                updateSynthesePanel();
+            });
+        }).start();
+    }
+
+    // Helper to get a free vehicule
+    private Vehicule getVehiculeDisponible() {
+        for (Vehicule v : new VehiculeController().getAllVehicules()) {
+            if (v.isDisponible()) return v;
+        }
+        return null;
+    }
+
+    // Helper to set vehicule status
+    private void setVehiculeOccupe(Vehicule vehicule, boolean occupe) {
+        vehicule.setDisponible(!occupe);
+        new VehiculeController().updateVehicule(
+            vehicule.getId(),
+            vehicule.getMarque(),
+            vehicule.getModele(),
+            vehicule.getType(),
+            vehicule.isDisponible()
+        );
+    }
+
+    private Timer retardTimer = new Timer(5000, e -> checkRetards());
+
+    private void checkRetards() {
+        long now = System.currentTimeMillis();
+        long seuil = 30000; // 30 secondes
+        for (Commande cmd : commandeController.getWaitingCommands()) {
+            Long arrivee = commandeArriveeTime.get(cmd);
+            if (arrivee != null && now - arrivee > seuil) {
+                notificationModel.addElement("Commande " + cmd.getNumeroCommande() + " en retard !");
+            }
+        }
+    }
+
+    public void addNotification(String message) {
+        notificationModel.addElement(message);
+    }
+
+    // Ajoute cette méthode utilitaire dans OrderBoard
+    private double getPrixCommande(Commande commande) {
+        // À adapter selon ta logique métier
+        // Exemple : prix fixe ou récupération depuis la pizza
+        if (commande.getNomPizza().equals("Margherita")) return 8.0;
+        if (commande.getNomPizza().equals("4 Fromages")) return 10.0;
+        if (commande.getNomPizza().equals("Diavola")) return 11.0;
+        if (commande.getNomPizza().equals("Parma")) return 11.0;
+        return 9.0; // prix par défaut
+    }
+
+    public double getSolde() {
+        return solde;
+    }
+
+    public void resetGame() {
+        // Clear Commande table in DB
+        try {
+            model.CommandeDAO.clearAllCommandes();
+        } catch (Exception e) {
+            e.printStackTrace();
+            addNotification("Erreur lors de la réinitialisation des commandes.");
+        }
+
+        // Reset wallet
+        solde = 10000.0;
+        setSolde(solde);
+
+        // Clear notifications
+        notificationModel.clear();
+
+        // Clear progress panels
+        pizzaioloProgressPanel.removeAll();
+        livreurProgressPanel.removeAll();
+        pizzaioloProgressPanel.revalidate();
+        livreurProgressPanel.revalidate();
+        pizzaioloProgressPanel.repaint();
+        livreurProgressPanel.repaint();
+
+        // Reset personnel/vehicles state
+        PersonnelManager.getInstance().resetAll();
+
+        // Reset commands (now empty)
+        commandeController.initWaitingCommand();
+        updateOrderLists();
+        showRandomCommande();
+
+        // Reset pizza/size selection
+        selectedPizza = null;
+        selectedSize = null;
+
+        // Reset synthese panel
+        updateSynthesePanel();
+    }
+
+    private void initPizzaPanel() {
+        CCentreListPizza.removeAll();
+        CCentreListPizza.setLayout(new java.awt.GridLayout(4, 1, 0, 5));
+
+        addPizzaButton("Margherita", 8.0, "S", "Margherita.jpeg");
+        addPizzaButton("4 Fromages", 10.0, "S", "4Fromages.jpg");
+        addPizzaButton("Diavola", 11.0, "S", "diavola.jpeg");
+        addPizzaButton("Parma", 11.0, "S", "parma.jpeg");
+
+        CCentreListPizza.revalidate();
+        CCentreListPizza.repaint();
+    }
+
+    private void addPizzaButton(String name, double price, String size, String imageFile) {
+        JPanel pizzaPanel = new JPanel(new java.awt.GridLayout(1, 2));
+        JButton pizzaButton = new JButton();
+        pizzaButton.setIcon(new javax.swing.ImageIcon("src/images/" + imageFile));
+        pizzaButton.setBorder(null);
+        pizzaButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+
+        pizzaButton.addActionListener(e -> {
+            selectedPizza = new Pizza(0, name, price, size, imageFile);
+            JOptionPane.showMessageDialog(this, "Pizza " + name + " sélectionnée !");
+        });
+
+        JTextArea pizzaDetails = new JTextArea();
+        pizzaDetails.setText(name + "\n" + price + "€");
+        pizzaDetails.setFocusable(false);
+        pizzaDetails.setAutoscrolls(false);
+
+        pizzaPanel.add(pizzaButton);
+        pizzaPanel.add(new JScrollPane(pizzaDetails));
+        CCentreListPizza.add(pizzaPanel);
+    }
 }

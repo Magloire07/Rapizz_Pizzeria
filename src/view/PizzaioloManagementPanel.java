@@ -62,10 +62,14 @@ public class PizzaioloManagementPanel extends JPanel {
         addButton.addActionListener(e -> {
             String nom = nomField.getText().trim();
             String prenom = prenomField.getText().trim();
-            if (nom.isEmpty() || prenom.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            double coutEmbauche = 100.0; // Exemple de coût
+            OrderBoard mainBoard = (OrderBoard) SwingUtilities.getWindowAncestor(this);
+            if (mainBoard.getSolde() < coutEmbauche) {
+                JOptionPane.showMessageDialog(this, "Solde insuffisant pour embaucher.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            mainBoard.setSolde(mainBoard.getSolde() - coutEmbauche);
+            mainBoard.addNotification("-" + coutEmbauche + "€ (embauche)");
             controller.addPizzaiolo(nom, prenom);
             refreshTable();
             clearFields();

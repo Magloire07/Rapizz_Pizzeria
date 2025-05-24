@@ -71,10 +71,14 @@ public class VehiculeManagementPanel extends JPanel {
             String modele = modeleField.getText().trim();
             String type = typeField.getText().trim();
             boolean disponible = disponibleCheckBox.isSelected();
-            if (marque.isEmpty() || modele.isEmpty() || type.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            double coutVehicule = 500.0; // Exemple de coût
+            OrderBoard mainBoard = (OrderBoard) SwingUtilities.getWindowAncestor(this);
+            if (mainBoard.getSolde() < coutVehicule) {
+                JOptionPane.showMessageDialog(this, "Solde insuffisant pour acheter un véhicule.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            mainBoard.setSolde(mainBoard.getSolde() - coutVehicule);
+            mainBoard.addNotification("-" + coutVehicule + "€ (achat véhicule)");
             controller.addVehicule(marque, modele, type, disponible);
             refreshTable();
             clearFields();

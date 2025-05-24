@@ -45,4 +45,8 @@ public class LivreurController {
     public void assignLivreurToDelivery(int livreurId, int livraisonId) {
         livreurDAO.assignLivreurToDelivery(livreurId, livraisonId);
     }
+
+    public List<Livreur> getAllLivreurs() {
+        return livreurDAO.readAllLivreurs();
+    }
 }
