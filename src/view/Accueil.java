@@ -4,6 +4,8 @@
  */
 package view;
 
+import javax.swing.JButton;
+import view.ManagementWindow;
 
 public class Accueil extends javax.swing.JFrame {
 
@@ -12,6 +14,19 @@ public class Accueil extends javax.swing.JFrame {
      */
     public Accueil() {
         initComponents();
+
+        // Add your custom Gestion button here
+        JButton gestionButton = new JButton("Gestion");
+        gestionButton.setBackground(new java.awt.Color(204, 204, 255));
+        gestionButton.setFont(new java.awt.Font("Liberation Sans", 1, 24));
+        gestionButton.setText("Gestion");
+        gestionButton.setBorder(null);
+        gestionButton.setBorderPainted(false);
+        gestionButton.addActionListener(e -> {
+            ManagementWindow window = new ManagementWindow();
+            window.setVisible(true);
+        });
+        jPanel1.add(gestionButton); // Add to your main panel
     }
 
     /**
@@ -39,7 +54,7 @@ public class Accueil extends javax.swing.JFrame {
         getContentPane().add(jLabel1);
 
         jPanel1.setOpaque(false); // Make the panel transparent
-        jPanel1.setLayout(new java.awt.GridLayout(3, 1, 0, 8));
+        jPanel1.setLayout(new java.awt.GridLayout(4, 1, 0, 8));
         jPanel1.setBounds(320, 210, 620, 460); // Set bounds for the panel
 
         playButton.setBackground(new java.awt.Color(204, 255, 204));

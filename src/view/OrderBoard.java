@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import controller.InventoryController;
 import model.Pizza;
@@ -31,6 +32,14 @@ public class OrderBoard extends javax.swing.JFrame {
     private FicheLivraisonControlle flivs; 
     private DashboardController dash ; 
 
+    // Add these fields to store the selected pizza and size
+    private Pizza selectedPizza;
+    private String selectedSize;
+
+    // Add these fields to store the current order to process and simulate wallet
+    private Commande currentCommande;
+    private double solde = 10000.0; // Initial wallet
+
     /**
      * Creates new form OrderBoard
      */
@@ -38,9 +47,13 @@ public class OrderBoard extends javax.swing.JFrame {
         initComponents();
         inventoryController = new InventoryController(this);
         commandeController = new CommandController();
-        menuController= new MenuController(); 
-        flivs = new FicheLivraisonControlle(); 
-        dash= new DashboardController(); 
+        menuController = new MenuController();
+        flivs = new FicheLivraisonControlle();
+        dash = new DashboardController();
+
+        // Show the first random order to start the game
+        showRandomCommande();
+        setSolde(solde);
     }
 
     /**
@@ -247,10 +260,20 @@ public class OrderBoard extends javax.swing.JFrame {
 
         btSizeM.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
         btSizeM.setText("M");
+        btSizeM.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btSizeMActionPerformed(evt);
+            }
+        });
         SNord.add(btSizeM);
 
         btSizeL.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
         btSizeL.setText("L");
+        btSizeL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btSizeLActionPerformed(evt);
+            }
+        });
         SNord.add(btSizeL);
 
         CSud.add(SNord, java.awt.BorderLayout.NORTH);
@@ -259,6 +282,11 @@ public class OrderBoard extends javax.swing.JFrame {
         btValider.setFont(new java.awt.Font("Liberation Sans", 1, 24)); // NOI18N
         btValider.setForeground(new java.awt.Color(255, 255, 255));
         btValider.setText("VALIDER");
+        btValider.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btValiderActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout SSudLayout = new javax.swing.GroupLayout(SSud);
         SSud.setLayout(SSudLayout);
@@ -331,6 +359,13 @@ public class OrderBoard extends javax.swing.JFrame {
         });
         Droite.add(btFiche);
 
+        JButton gestionButton = new JButton("Gestion");
+        gestionButton.addActionListener(e -> {
+            ManagementWindow window = new ManagementWindow();
+            window.setVisible(true);
+        });
+        Droite.add(gestionButton); // Or add to your preferred panel
+
         jScrollPane3.setPreferredSize(new java.awt.Dimension(250, 410));
 
         listCmdPrete.setModel(new javax.swing.AbstractListModel<String>() {
@@ -349,19 +384,36 @@ public class OrderBoard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btSizeSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSizeSActionPerformed
-        // TODO add your handling code here:
+        selectedSize = "S";
+        JOptionPane.showMessageDialog(this, "Taille S sélectionnée !");
     }//GEN-LAST:event_btSizeSActionPerformed
 
+    private void btSizeMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSizeMActionPerformed
+        selectedSize = "M";
+        JOptionPane.showMessageDialog(this, "Taille M sélectionnée !");
+    }//GEN-LAST:event_btSizeMActionPerformed
+
+    private void btSizeLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSizeLActionPerformed
+        selectedSize = "L";
+        JOptionPane.showMessageDialog(this, "Taille L sélectionnée !");
+    }//GEN-LAST:event_btSizeLActionPerformed
+
     private void photoPizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photoPizActionPerformed
-        // TODO add your handling code here:
+        // Select the first pizza (example: Margherita)
+        selectedPizza = new Pizza(1, "Margherita", 15.0, "Margherita.jpeg", "S");
+        JOptionPane.showMessageDialog(this, "Pizza Margherita sélectionnée !");
     }//GEN-LAST:event_photoPizActionPerformed
 
     private void photoPiz1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photoPiz1ActionPerformed
-        // TODO add your handling code here:
+        // Select the second pizza (example: Regina)
+        selectedPizza = new Pizza(2, "Regina", 18.0, "Regina.jpeg", "S");
+        JOptionPane.showMessageDialog(this, "Pizza Regina sélectionnée !");
     }//GEN-LAST:event_photoPiz1ActionPerformed
 
     private void photoPiz2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photoPiz2ActionPerformed
-        // TODO add your handling code here:
+        // Select the third pizza (example: 4 Fromages)
+        selectedPizza = new Pizza(3, "4 Fromages", 20.0, "4Fromages.jpeg", "S");
+        JOptionPane.showMessageDialog(this, "Pizza 4 Fromages sélectionnée !");
     }//GEN-LAST:event_photoPiz2ActionPerformed
 
     private void btInventaireActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInventaireActionPerformed
@@ -411,9 +463,12 @@ public class OrderBoard extends javax.swing.JFrame {
         CCentreListPizza.repaint();
     }
 
-    public void setListCmdPrete(ArrayList<Pizza> listPizza)
-    {
-        
+    public void setListCmdPrete(List<Commande> commandes) {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (Commande cmd : commandes) {
+            model.addElement("N°: " + String.format("%04d", cmd.getNumeroCommande()));
+        }
+        listCmdPrete.setModel(model);
     }
     public void setListCmdAttent() {
         ArrayList<Commande> commandes = commandeController.getRandomCmd();
@@ -425,6 +480,87 @@ public class OrderBoard extends javax.swing.JFrame {
     }
     public void setCurrentCommand(String commande) {
         currentCommand.setText(commande);
+    }
+
+    // Call this in your constructor or after each validation to show a new random commande
+    // showRandomCommande();
+
+    // When the user clicks "VALIDER", process the current commande
+    private void btValiderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btValiderActionPerformed
+        // Check if there is a current order to process
+        if (currentCommande == null) {
+            JOptionPane.showMessageDialog(this, "Aucune commande à traiter !");
+            return;
+        }
+        // Check if user selected pizza and size
+        if (selectedPizza == null) {
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner une pizza !");
+            return;
+        }
+        if (selectedSize == null) {
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner une taille !");
+            return;
+        }
+
+        // Simulate pizza preparation (progress bar)
+        JProgressBar progressBar = new JProgressBar(0, 100);
+        progressBar.setStringPainted(true);
+        JOptionPane pane = new JOptionPane(progressBar, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
+        final JDialog[] dialogPrep = new JDialog[1];
+        dialogPrep[0] = pane.createDialog(this, "Préparation de la pizza...");
+        new Thread(() -> {
+            for (int i = 0; i <= 100; i += 10) {
+                try { Thread.sleep(150); } catch (InterruptedException ignored) {}
+                progressBar.setValue(i);
+            }
+            dialogPrep[0].dispose();
+        }).start();
+        dialogPrep[0].setVisible(true);
+
+        // Simulate delivery (progress bar)
+        progressBar.setValue(0);
+        pane.setMessage(progressBar);
+        final JDialog[] dialogLiv = new JDialog[1];
+        dialogLiv[0] = pane.createDialog(this, "Livraison en cours...");
+        new Thread(() -> {
+            for (int i = 0; i <= 100; i += 10) {
+                try { Thread.sleep(120); } catch (InterruptedException ignored) {}
+                progressBar.setValue(i);
+            }
+            dialogLiv[0].dispose();
+        }).start();
+        dialogLiv[0].setVisible(true);
+
+        // Update wallet/solde
+        solde += selectedPizza.getPrice();
+        setSolde(solde);
+
+        // Move the order to ready list (simulate)
+        commandeController.validateCommand(currentCommande);
+
+        // Update UI lists
+        setListCmdPrete(commandeController.getReadyCommands());
+        setListCmdAttent();
+
+        // Reset selections
+        selectedPizza = null;
+        selectedSize = null;
+
+        // Show next random order
+        showRandomCommande();
+    }//GEN-LAST:event_btValiderActionPerformed
+
+    // Show a random waiting order to the user
+    public void showRandomCommande() {
+        ArrayList<Commande> waiting = commandeController.getRandomCmd();
+        if (!waiting.isEmpty()) {
+            int idx = (int) (Math.random() * waiting.size());
+            currentCommande = waiting.get(idx);
+            setCurrentCommand(currentCommande.toString());
+        } else {
+            currentCommande = null;
+            setCurrentCommand("Aucune commande en attente.");
+        }
     }
 
     // /**

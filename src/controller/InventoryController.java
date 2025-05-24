@@ -5,11 +5,13 @@ import javax.swing.table.DefaultTableModel;
 
 import model.Ingredient;
 import model.InventoryManager;
+import model.OrderBoardManager;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import view.OrderBoard;
 
@@ -27,13 +29,11 @@ public class InventoryController {
         inventoryFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         inventoryFrame.setLayout(new BorderLayout());
 
-        // Use DefaultTableModel for dynamic table population
         DefaultTableModel tableModel = new DefaultTableModel(new String[] {"Ingredient", "Quantity", "Unit Price", "Total Price"}, 0);
         JTable inventoryTable = new JTable(tableModel);
 
-        // Populate table with data from InventoryManager
         InventoryManager inventoryManager = new InventoryManager();
-        ArrayList<Ingredient> ingredients = inventoryManager.getIngredients();
+        List<Ingredient> ingredients = inventoryManager.getIngredients();
         for (Ingredient ingredient : ingredients) {
             tableModel.addRow(new Object[] {
                 ingredient.getName(),
@@ -46,7 +46,6 @@ public class InventoryController {
         JScrollPane scrollPane = new JScrollPane(inventoryTable);
         inventoryFrame.add(scrollPane, BorderLayout.CENTER);
 
-        // Bouton Gérer le Stock
         JButton manageStockButton = new JButton("Gérer le Stock");
         manageStockButton.addActionListener(e -> {
             JFrame manageStockFrame = new JFrame("Gérer le Stock");
@@ -54,7 +53,6 @@ public class InventoryController {
             manageStockFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             manageStockFrame.setLayout(new GridLayout(5, 2, 10, 10));
 
-            // Populate JComboBox dynamically
             JLabel ingredientLabel = new JLabel("Ingrédient:");
             JComboBox<String> ingredientComboBox = new JComboBox<>();
             for (Ingredient ingredient : ingredients) {
@@ -64,7 +62,6 @@ public class InventoryController {
             JLabel unitPriceLabel = new JLabel("Prix Unitaire:");
             JLabel unitPriceValue = new JLabel("€0.00");
 
-            // Update unit price when ingredient is selected
             ingredientComboBox.addActionListener(event -> {
                 String selectedIngredient = (String) ingredientComboBox.getSelectedItem();
                 for (Ingredient ingredient : ingredients) {
@@ -79,7 +76,9 @@ public class InventoryController {
             JSpinner quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
 
             JLabel accountBalanceLabel = new JLabel("Solde du Compte:");
-            JLabel accountBalanceValue = new JLabel("€100.00"); // Replace with actual account balance logic
+            // Use real account balance
+            OrderBoardManager orderBoardManager = new OrderBoardManager();
+            JLabel accountBalanceValue = new JLabel("€" + String.format("%.2f", orderBoardManager.getSolde()));
 
             JButton orderButton = new JButton("Commander");
             orderButton.addActionListener(orderEvent -> {
@@ -88,13 +87,25 @@ public class InventoryController {
                 double unitPrice = Double.parseDouble(unitPriceValue.getText().substring(1));
                 double totalCost = quantity * unitPrice;
 
-                // Update ingredient quantity in InventoryManager
+                // Add quantity to ingredient (ordering new stock)
                 for (Ingredient ingredient : ingredients) {
                     if (ingredient.getName().equals(selectedIngredient)) {
-                        ingredient.setQuantity(ingredient.getQuantity() - quantity);
+                        ingredient.setQuantity(ingredient.getQuantity() + quantity);
                         inventoryManager.updateIngredient(ingredient);
                         break;
                     }
+                }
+
+                // Refresh inventory table after order
+                List<Ingredient> updatedIngredients = inventoryManager.getIngredients();
+                tableModel.setRowCount(0); // Clear table
+                for (Ingredient ingredient : updatedIngredients) {
+                    tableModel.addRow(new Object[] {
+                        ingredient.getName(),
+                        ingredient.getQuantity(),
+                        ingredient.getPrice(),
+                        ingredient.getQuantity() * ingredient.getPrice()
+                    });
                 }
 
                 JOptionPane.showMessageDialog(manageStockFrame,
@@ -121,7 +132,6 @@ public class InventoryController {
             manageStockFrame.setVisible(true);
         });
 
-        // Bouton Fermer
         JButton closeButton = new JButton("Fermer");
         closeButton.addActionListener(e -> inventoryFrame.dispose());
 

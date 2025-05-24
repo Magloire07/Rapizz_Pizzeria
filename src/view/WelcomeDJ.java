@@ -101,7 +101,6 @@ public class WelcomeDJ extends java.awt.Dialog {
         controller.initOrderBoard(wind);
         wind.setListCmdAttent();
         cmdController.initWaitingCommand();
-        cmdController.setCurrentCommand(wind);
         wind.setLocation(100,100);// definition de sa position par rapport au coins supérieur gauche de l'écran
         wind.setVisible(true);    //  jDialog rendu visible 
         setVisible(false);
