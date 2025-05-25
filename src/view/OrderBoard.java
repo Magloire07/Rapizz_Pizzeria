@@ -78,62 +78,60 @@ public class OrderBoard extends javax.swing.JFrame {
         flivs = new FicheLivraisonControlle();
         dash = new DashboardController();
 
-        // Initialize waiting commands and UI lists
+        // Simplified pizzaiolo initialization
+        PersonnelManager personnel = PersonnelManager.getInstance();
+        personnel.chargerPizzaiolosDepuisDB();
+        if (personnel.getPizzaiolos().isEmpty()) {
+            new model.PizzaioloDAO().addPizzaiolo(new model.Pizzaiolo("Mario", "Rossi"));
+            personnel.chargerPizzaiolosDepuisDB();
+            notificationModel.addElement("Un pizzaiolo a été embauché automatiquement.");
+        }
+
+        // Load livreurs from DB into simulation
+        personnel.chargerLivreursDepuisDB();
+
         commandeController.initWaitingCommand();
         updateOrderLists();
-
-        // Show the first random order to start the game
         showRandomCommande();
         setSolde(solde);
 
+        // Notifications
         Droite.add(new JLabel("Notifications:"));
-        notificationList.setPreferredSize(new Dimension(250, 80));
-        notificationList.setVisibleRowCount(4); // Show more rows before scrolling
         JScrollPane notificationScrollPane = new JScrollPane(notificationList);
-        notificationScrollPane.setPreferredSize(new Dimension(250, 150)); // Increase height
+        notificationScrollPane.setPreferredSize(new Dimension(250, 250));
         Droite.add(notificationScrollPane);
 
-        Droite.add(new JLabel("Préparation:"));
+        // Remove the finished commands scroll pane and its addition to Droite
+        // JScrollPane finishedCmdScrollPane = new JScrollPane(listCmdPrete);
+        // finishedCmdScrollPane.setPreferredSize(new Dimension(200, 150));
+        // Droite.add(finishedCmdScrollPane);
+
+        // Progress panels moved to Gauche
+        Gauche.add(new JLabel("Préparation:"));
         pizzaioloProgressPanel.setPreferredSize(new Dimension(250, 40));
-        Droite.add(pizzaioloProgressPanel);
+        Gauche.add(pizzaioloProgressPanel);
 
-        Droite.add(new JLabel("Livraison:"));
+        Gauche.add(new JLabel("Livraison:"));
         livreurProgressPanel.setPreferredSize(new Dimension(250, 40));
-        Droite.add(livreurProgressPanel);
+        Gauche.add(livreurProgressPanel);
 
-        Droite.add(statsLabel);
+        
 
-        // Boutons gestion personnel/véhicules
-        JButton gestionButton = new JButton("Gestion du Personnel & Véhicules");
-        gestionButton.addActionListener(e -> {
-            ManagementWindow window = new ManagementWindow();
-            window.setVisible(true);
-        });
-        Droite.add(gestionButton);
-
-        JButton manageStockButton = new JButton("Réapprovisionner le stock");
-        manageStockButton.addActionListener(e -> inventoryController.showInventoryWindow());
-        Droite.add(manageStockButton);
-
-        Droite.add(new JLabel("Synthèse Personnel/Véhicules:"));
-        Droite.add(synthesePanel);
         updateSynthesePanel();
 
-        // Génération régulière de commandes (toutes les 20 secondes)
+        // Commande timer
         commandeTimer = new Timer(20000, e -> {
             commandeController.genererCommandeAleatoireEtRafraichir();
             updateOrderLists();
-            showRandomCommande(); // <-- Add this line
+            showRandomCommande();
             notificationModel.addElement("Nouvelle commande reçue !");
         });
         commandeTimer.start();
 
         retardTimer.start();
 
-        // After all other initializations
         initPizzaPanel();
 
-        // Set a medium window size and center it
         setPreferredSize(new Dimension(1256, 1000));
         setMinimumSize(new Dimension(1000, 1000));
         setResizable(true);
@@ -262,6 +260,15 @@ public class OrderBoard extends javax.swing.JFrame {
         jScrollPane2.setViewportView(lstCmdAttent);
 
         Gauche.add(jScrollPane2);
+
+        // Add to Gauche after the command lists:
+        Gauche.add(new JLabel("Préparation:"));
+        pizzaioloProgressPanel.setPreferredSize(new Dimension(250, 40));
+        Gauche.add(pizzaioloProgressPanel);
+
+        Gauche.add(new JLabel("Livraison:"));
+        livreurProgressPanel.setPreferredSize(new Dimension(250, 40));
+        Gauche.add(livreurProgressPanel);
 
         getContentPane().add(Gauche, java.awt.BorderLayout.WEST);
 
@@ -490,6 +497,16 @@ public class OrderBoard extends javax.swing.JFrame {
         });
         Droite.add(btFiche);
 
+        // Gestion buttons
+        JButton gestionButton = new JButton("Gestion du Personnel & Véhicules");
+        gestionButton.addActionListener(e -> new ManagementWindow(this).setVisible(true));
+        Droite.add(gestionButton);
+
+        JButton manageStockButton = new JButton("Réapprovisionner le stock");
+        manageStockButton.addActionListener(e -> inventoryController.showInventoryWindow());
+        Droite.add(manageStockButton);
+
+        // Remove the finished commands JList from Droite in the initComponents method as well
         jScrollPane3.setPreferredSize(new java.awt.Dimension(250, 410));
 
         listCmdPrete.setModel(new javax.swing.AbstractListModel<String>() {
@@ -498,8 +515,6 @@ public class OrderBoard extends javax.swing.JFrame {
             public String getElementAt(int i) { return strings[i]; }
         });
         listCmdPrete.setPreferredSize(new java.awt.Dimension(200, 370));
-        jScrollPane3.setViewportView(listCmdPrete);
-
         Droite.add(jScrollPane3);
 
         // Instead of adding Droite directly, wrap it in a JScrollPane:
@@ -568,52 +583,9 @@ public class OrderBoard extends javax.swing.JFrame {
         soldeText.setText("Solde Actuel: " + solde + "€");
     }
 
-    // public void setListPizza(ArrayList<Pizza> listPizza) {
-    //     CCentreListPizza.removeAll();
-    //     CCentreListPizza.setLayout(new java.awt.GridLayout(listPizza.size(), 1, 0, 5));
-
-    //     for (Pizza pizza : listPizza) {
-    //         JPanel pizzaPanel = new JPanel(new java.awt.GridLayout(1, 2));
-    //         JButton pizzaImage = new JButton();
-    //         pizzaImage.setIcon(new javax.swing.ImageIcon("src/images/" + pizza.getImagePath()));
-    //         pizzaImage.setBorder(null);
-    //         pizzaImage.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
-    //         JTextArea pizzaDetails = new JTextArea();
-    //         pizzaDetails.setText(pizza.getName() + "\n" + pizza.getPrice() + "€"); // Assuming Pizza has getName() and getPrice()
-    //         pizzaDetails.setFocusable(false);
-    //         pizzaDetails.setAutoscrolls(false);
-
-    //         pizzaPanel.add(pizzaImage);
-    //         pizzaPanel.add(new JScrollPane(pizzaDetails));
-    //         CCentreListPizza.add(pizzaPanel);
-    //     }
-
-    //     CCentreListPizza.revalidate();
-    //     CCentreListPizza.repaint();
-    // }
-
-    // public void setListCmdPrete(List<Commande> commandes) {
-    //     DefaultListModel<String> model = new DefaultListModel<>();
-    //     for (Commande cmd : commandes) {
-    //         model.addElement("N°: " + String.format("%04d", cmd.getNumeroCommande()));
-    //     }
-    //     listCmdPrete.setModel(model);
-    // }
-    // public void setListCmdAttent() {
-    //     ArrayList<Commande> commandes = commandeController.getRandomCmd();
-    //     DefaultListModel<String> model = new DefaultListModel<>();
-    //     for (Commande commande : commandes) {
-    //         model.addElement(commande.getNomClient() + " - N°: " + commande.getNumeroCommande());
-    //     }
-    //     lstCmdAttent.setModel(model);
-    // }
     public void setCurrentCommand(String commande) {
         currentCommand.setText(commande);
     }
-
-    // Call this in your constructor or after each validation to show a new random commande
-    // showRandomCommande();
 
     /**
      * Handles the validation of the current command and continues the game loop.
@@ -652,42 +624,6 @@ public class OrderBoard extends javax.swing.JFrame {
         updateOrderLists();
         showRandomCommande();
     }//GEN-LAST:event_btValiderActionPerformed
-
-    // /**
-    //  * @param args the command line arguments
-    //  */
-    // public static void main(String args[]) {
-    //     /* Set the Nimbus look and feel */
-    //     //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    //     /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-    //      * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-    //      */
-    //     try {
-    //         for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-    //             if ("Nimbus".equals(info.getName())) {
-    //                 javax.swing.UIManager.setLookAndFeel(info.getClassName());
-    //                 break;
-    //             }
-    //         }
-    //     } catch (ClassNotFoundException ex) {
-    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    //     } catch (InstantiationException ex) {
-    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    //     } catch (IllegalAccessException ex) {
-    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    //     } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-    //         java.util.logging.Logger.getLogger(OrderBoard.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    //     }
-    //     //</editor-fold>
-
-    //     /* Create and display the form */
-    //     java.awt.EventQueue.invokeLater(new Runnable() {
-    //         public void run() {
-    //             new OrderBoard().setVisible(true);
-    //         }
-    //     });
-    // }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel CCentreListPizza;
     private javax.swing.JPanel CNord;
@@ -916,36 +852,32 @@ public class OrderBoard extends javax.swing.JFrame {
         updateSynthesePanel();
     }
 
+    // Simplified pizza panel initialization
     private void initPizzaPanel() {
         CCentreListPizza.removeAll();
         CCentreListPizza.setLayout(new java.awt.GridLayout(4, 1, 0, 5));
-
         addPizzaButton("Margherita", 8.0, "S", "Margherita.jpeg");
         addPizzaButton("4 Fromages", 10.0, "S", "4Fromages.jpg");
         addPizzaButton("Diavola", 11.0, "S", "diavola.jpeg");
         addPizzaButton("Parma", 11.0, "S", "parma.jpeg");
-
         CCentreListPizza.revalidate();
         CCentreListPizza.repaint();
     }
 
+    // Simplified pizza button creation
     private void addPizzaButton(String name, double price, String size, String imageFile) {
         JPanel pizzaPanel = new JPanel(new java.awt.GridLayout(1, 2));
         JButton pizzaButton = new JButton();
         pizzaButton.setIcon(new javax.swing.ImageIcon("src/images/" + imageFile));
         pizzaButton.setBorder(null);
         pizzaButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
         pizzaButton.addActionListener(e -> {
             selectedPizza = new Pizza(0, name, price, size, imageFile);
             JOptionPane.showMessageDialog(this, "Pizza " + name + " sélectionnée !");
         });
-
-        JTextArea pizzaDetails = new JTextArea();
-        pizzaDetails.setText(name + "\n" + price + "€");
+        JTextArea pizzaDetails = new JTextArea(name + "\n" + price + "€");
         pizzaDetails.setFocusable(false);
         pizzaDetails.setAutoscrolls(false);
-
         pizzaPanel.add(pizzaButton);
         pizzaPanel.add(new JScrollPane(pizzaDetails));
         CCentreListPizza.add(pizzaPanel);

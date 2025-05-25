@@ -3,7 +3,10 @@ package view;
 import javax.swing.*;
 
 public class ManagementWindow extends JFrame {
-    public ManagementWindow() {
+    private final OrderBoard orderBoard;
+
+    public ManagementWindow(OrderBoard orderBoard) {
+        this.orderBoard = orderBoard;
         setTitle("Gestion du Personnel et Véhicules");
         setSize(900, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -12,7 +15,8 @@ public class ManagementWindow extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Livreurs", new LivreurManagementPanel());
         tabbedPane.addTab("Véhicules", new VehiculeManagementPanel());
-        tabbedPane.addTab("Pizzaiolos", new PizzaioloManagementPanel());
+        PizzaioloManagementPanel pizzaioloPanel = new PizzaioloManagementPanel(orderBoard);
+        tabbedPane.addTab("Pizzaiolos", pizzaioloPanel);
 
         add(tabbedPane);
     }

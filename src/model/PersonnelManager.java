@@ -77,4 +77,19 @@ public class PersonnelManager {
             l.commandeEnCours = null;
         }
     }
+
+    public void chargerPizzaiolosDepuisDB() {
+        pizzaiolos.clear();
+        model.PizzaioloDAO dao = new model.PizzaioloDAO();
+        for (model.Pizzaiolo p : dao.readAllPizzaiolos()) {
+            pizzaiolos.add(new PizzaioloState(p.getNom() + " " + p.getPrenom()));
+        }
+    }
+    public void chargerLivreursDepuisDB() {
+        livreurs.clear();
+        model.LivreurDAO dao = new model.LivreurDAO();
+        for (model.Livreur l : dao.readAllLivreurs()) {
+            livreurs.add(new LivreurState(l.getNom() + " " + l.getPrenom()));
+        }
+    }
 }

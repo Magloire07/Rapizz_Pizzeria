@@ -38,6 +38,7 @@ public class DashboardController {
         frame.add(createPanel("Nombre de Commandes par Client", getOrdersPerClient()));
         frame.add(createPanel("Moyenne des Commandes", getAverageOrders()));
         frame.add(createPanel("Clients au-dessus de la Moyenne", getClientsAboveAverage()));
+        frame.add(createPanel("Statistiques Générales", getGeneralStats()));
 
         // Display the window
         frame.pack();
@@ -200,5 +201,10 @@ public class DashboardController {
         } catch (Exception e) {
             return "Erreur lors de la récupération des clients";
         }
+    }
+
+    private String getGeneralStats() {
+        // Example: you can adapt this to show more stats
+        return "Commandes livrées: " + /* your logic here */ "\nSatisfaction: " + /* your logic here */ "%";
     }
 }

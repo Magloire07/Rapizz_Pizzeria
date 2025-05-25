@@ -12,9 +12,11 @@ public class PizzaioloManagementPanel extends JPanel {
     private final JTable table;
     private final JTextField nomField;
     private final JTextField prenomField;
+    private final OrderBoard mainBoard; // Add this field
 
-    public PizzaioloManagementPanel() {
+    public PizzaioloManagementPanel(OrderBoard mainBoard) { // Accept OrderBoard as parameter
         this.controller = new PizzaioloController();
+        this.mainBoard = mainBoard; // Store reference
 
         setLayout(new BorderLayout());
 
@@ -44,11 +46,13 @@ public class PizzaioloManagementPanel extends JPanel {
         JButton editButton = new JButton("Modifier");
         JButton deleteButton = new JButton("Supprimer");
         JButton refreshButton = new JButton("Rafraîchir");
+        JButton hireButton = new JButton("Embaucher un pizzaiolo (100€)");
 
         buttonPanel.add(addButton);
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(refreshButton);
+        buttonPanel.add(hireButton);
 
         // Add components to main panel
         add(scrollPane, BorderLayout.CENTER);
@@ -63,7 +67,6 @@ public class PizzaioloManagementPanel extends JPanel {
             String nom = nomField.getText().trim();
             String prenom = prenomField.getText().trim();
             double coutEmbauche = 100.0; // Exemple de coût
-            OrderBoard mainBoard = (OrderBoard) SwingUtilities.getWindowAncestor(this);
             if (mainBoard.getSolde() < coutEmbauche) {
                 JOptionPane.showMessageDialog(this, "Solde insuffisant pour embaucher.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -107,6 +110,24 @@ public class PizzaioloManagementPanel extends JPanel {
         });
 
         refreshButton.addActionListener(e -> refreshTable());
+
+        hireButton.addActionListener(e -> {
+            if (mainBoard.getSolde() >= 100) {
+                String nom = JOptionPane.showInputDialog(this, "Nom du pizzaiolo ?");
+                String prenom = JOptionPane.showInputDialog(this, "Prénom du pizzaiolo ?");
+                if (nom != null && prenom != null && !nom.isEmpty() && !prenom.isEmpty()) {
+                    model.PizzaioloDAO dao = new model.PizzaioloDAO();
+                    dao.addPizzaiolo(new model.Pizzaiolo(nom, prenom));
+                    mainBoard.setSolde(mainBoard.getSolde() - 100);
+                    mainBoard.addNotification("Nouveau pizzaiolo embauché ! -100€");
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Nom ou prénom invalide.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Solde insuffisant pour embaucher un pizzaiolo !");
+            }
+        });
 
         // Table row selection to fill fields
         table.getSelectionModel().addListSelectionListener(e -> {
