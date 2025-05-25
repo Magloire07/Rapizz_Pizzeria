@@ -165,7 +165,7 @@ public class OrderBoard extends javax.swing.JFrame {
                 + "Pizza  : " + cmd.getNomPizza() + "\n"
                 + "Taille : " + (cmd.getTaille() != null ? cmd.getTaille() : "Non spécifiée") + "\n"
                 + "Prix   : " + getPrixCommande(cmd) + "€\n"
-                + "Commande N°: " + String.format("%04d", cmd.getNumeroCommande())
+                + "Commande N°: " + String.format("%04d", cmd.getNumeroCommande()) + "\n"
                 + "--------------------\n";
             readyModel.addElement(bill);
         }
