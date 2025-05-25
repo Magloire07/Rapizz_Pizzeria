@@ -137,6 +137,9 @@ public class OrderBoard extends javax.swing.JFrame {
         setResizable(true);
         pack();
         setLocationRelativeTo(null); // Center on screen
+
+        // Add this line to enable multi-line rendering for prepared commands
+        listCmdPrete.setCellRenderer(new MultiLineCellRenderer());
     }
 
     /**
@@ -148,16 +151,23 @@ public class OrderBoard extends javax.swing.JFrame {
         DefaultListModel<String> waitingModel = new DefaultListModel<>();
         for (Commande cmd : waiting) {
             waitingModel.addElement(cmd.getNomClient() + " - N°: " + String.format("%04d", cmd.getNumeroCommande()));
-            // Enregistre le temps d'arrivée si pas déjà fait
             commandeArriveeTime.putIfAbsent(cmd, System.currentTimeMillis());
         }
         lstCmdAttent.setModel(waitingModel);
 
-        // Ready commands
+        // Ready commands (prepared)
         List<Commande> ready = commandeController.getReadyCommands();
         DefaultListModel<String> readyModel = new DefaultListModel<>();
         for (Commande cmd : ready) {
-            readyModel.addElement("N°: " + String.format("%04d", cmd.getNumeroCommande()));
+            // Compose a bill summary
+            String bill = "Facture\n"
+                + "Client : " + cmd.getNomClient() + "\n"
+                + "Pizza  : " + cmd.getNomPizza() + "\n"
+                + "Taille : " + (cmd.getTaille() != null ? cmd.getTaille() : "Non spécifiée") + "\n"
+                + "Prix   : " + getPrixCommande(cmd) + "€\n"
+                + "Commande N°: " + String.format("%04d", cmd.getNumeroCommande())
+                + "--------------------\n";
+            readyModel.addElement(bill);
         }
         listCmdPrete.setModel(readyModel);
     }
@@ -509,12 +519,8 @@ public class OrderBoard extends javax.swing.JFrame {
         // Remove the finished commands JList from Droite in the initComponents method as well
         jScrollPane3.setPreferredSize(new java.awt.Dimension(250, 410));
 
-        listCmdPrete.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "N°: 0011", "N°: 0013", "N°: 0018", "N°: 0021" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
         listCmdPrete.setPreferredSize(new java.awt.Dimension(200, 370));
+        jScrollPane3.setViewportView(listCmdPrete);
         Droite.add(jScrollPane3);
 
         // Instead of adding Droite directly, wrap it in a JScrollPane:
@@ -881,5 +887,23 @@ public class OrderBoard extends javax.swing.JFrame {
         pizzaPanel.add(pizzaButton);
         pizzaPanel.add(new JScrollPane(pizzaDetails));
         CCentreListPizza.add(pizzaPanel);
+    }
+
+    // Add this inside your OrderBoard class
+    private static class MultiLineCellRenderer extends JTextArea implements ListCellRenderer<String> {
+        public MultiLineCellRenderer() {
+            setLineWrap(true);
+            setWrapStyleWord(true);
+            setOpaque(true);
+        }
+        @Override
+        public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
+                                                     boolean isSelected, boolean cellHasFocus) {
+            setText(value);
+            setFont(list.getFont());
+            setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+            setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+            return this;
+        }
     }
 }

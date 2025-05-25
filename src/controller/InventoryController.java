@@ -43,19 +43,35 @@ public class InventoryController {
 
     public InventoryController(OrderBoard orderBoard) {
         this.mainBoard = orderBoard;
-        // Exemple de recettes
+        // Margherita
         Map<String, Integer> margherita = new HashMap<>();
         margherita.put("Tomate", 1);
         margherita.put("Mozzarella", 2);
         recettePizzas.put("Margherita", margherita);
 
+        // 4 Fromages
         Map<String, Integer> fromages4 = new HashMap<>();
         fromages4.put("Tomate", 1);
         fromages4.put("Mozzarella", 1);
         fromages4.put("4 Fromages", 2);
         recettePizzas.put("4 Fromages", fromages4);
 
-        // Ajoute d'autres recettes ici
+        // Diavola
+        Map<String, Integer> diavola = new HashMap<>();
+        diavola.put("Tomate", 1);
+        diavola.put("Mozzarella", 1);
+        diavola.put("Salami", 2);
+        recettePizzas.put("Diavola", diavola);
+
+        // Parma
+        Map<String, Integer> parma = new HashMap<>();
+        parma.put("Tomate", 1);
+        parma.put("Mozzarella", 1);
+        parma.put("Parma", 2);
+        parma.put("Jambon", 1);
+        recettePizzas.put("Parma", parma);
+
+        // ...add more recipes if needed...
     }
 
     public void showInventoryWindow() {
@@ -191,8 +207,17 @@ public class InventoryController {
     public boolean hasEnoughIngredients(Pizza pizza) {
         Map<String, Integer> recette = recettePizzas.get(pizza.getName());
         if (recette == null) return false;
+
+        InventoryManager inventoryManager = new InventoryManager();
+        List<Ingredient> ingredients = inventoryManager.getIngredients();
+
+        Map<String, Integer> stockActuel = new HashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            stockActuel.put(ingredient.getName(), ingredient.getQuantity());
+        }
+
         for (Map.Entry<String, Integer> entry : recette.entrySet()) {
-            int enStock = stock.getOrDefault(entry.getKey(), 0);
+            int enStock = stockActuel.getOrDefault(entry.getKey(), 0);
             if (enStock < entry.getValue()) {
                 return false;
             }
@@ -215,17 +240,32 @@ public class InventoryController {
     public void deductIngredients(Pizza pizza) {
         Map<String, Integer> recette = recettePizzas.get(pizza.getName());
         if (recette == null) return;
+
+        InventoryManager inventoryManager = new InventoryManager();
+        List<Ingredient> ingredients = inventoryManager.getIngredients();
+
         for (Map.Entry<String, Integer> entry : recette.entrySet()) {
-            String ingredient = entry.getKey();
+            String ingredientName = entry.getKey();
             int quantite = entry.getValue();
-            int enStock = stock.getOrDefault(ingredient, 0);
-            stock.put(ingredient, Math.max(0, enStock - quantite));
+            for (Ingredient ingredient : ingredients) {
+                if (ingredient.getName().equals(ingredientName)) {
+                    ingredient.setQuantity(Math.max(0, ingredient.getQuantity() - quantite));
+                    inventoryManager.updateIngredient(ingredient);
+                    break;
+                }
+            }
         }
         checkLowStock();
     }
 
     // (Optionnel) Pour afficher le stock actuel
     public Map<String, Integer> getStock() {
-        return stock;
+        InventoryManager inventoryManager = new InventoryManager();
+        List<Ingredient> ingredients = inventoryManager.getIngredients();
+        Map<String, Integer> stockActuel = new HashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            stockActuel.put(ingredient.getName(), ingredient.getQuantity());
+        }
+        return stockActuel;
     }
 }
