@@ -45,7 +45,7 @@ public class OrderBoard extends javax.swing.JFrame {
 
     // Add these fields to store the current order to process and simulate wallet
     private Commande currentCommande;
-    private double solde = 10000.0; // Initial wallet
+    private double solde = 200.0; // Initial wallet
 
     // Ajouts en haut de la classe
     private DefaultListModel<String> notificationModel = new DefaultListModel<>();
@@ -70,7 +70,6 @@ public class OrderBoard extends javax.swing.JFrame {
      * Creates new form OrderBoard
      */
     public OrderBoard() {
-        
         utils.DatabaseInitializer.initialize();
         initComponents();
         inventoryController = new InventoryController(this);
@@ -89,7 +88,10 @@ public class OrderBoard extends javax.swing.JFrame {
 
         Droite.add(new JLabel("Notifications:"));
         notificationList.setPreferredSize(new Dimension(250, 80));
-        Droite.add(new JScrollPane(notificationList));
+        notificationList.setVisibleRowCount(4); // Show more rows before scrolling
+        JScrollPane notificationScrollPane = new JScrollPane(notificationList);
+        notificationScrollPane.setPreferredSize(new Dimension(250, 150)); // Increase height
+        Droite.add(notificationScrollPane);
 
         Droite.add(new JLabel("Préparation:"));
         pizzaioloProgressPanel.setPreferredSize(new Dimension(250, 40));
@@ -121,6 +123,7 @@ public class OrderBoard extends javax.swing.JFrame {
         commandeTimer = new Timer(20000, e -> {
             commandeController.genererCommandeAleatoireEtRafraichir();
             updateOrderLists();
+            showRandomCommande(); // <-- Add this line
             notificationModel.addElement("Nouvelle commande reçue !");
         });
         commandeTimer.start();
@@ -129,6 +132,13 @@ public class OrderBoard extends javax.swing.JFrame {
 
         // After all other initializations
         initPizzaPanel();
+
+        // Set a medium window size and center it
+        setPreferredSize(new Dimension(1256, 1000));
+        setMinimumSize(new Dimension(1000, 1000));
+        setResizable(true);
+        pack();
+        setLocationRelativeTo(null); // Center on screen
     }
 
     /**
@@ -155,7 +165,7 @@ public class OrderBoard extends javax.swing.JFrame {
     }
 
     /**
-     * Shows a random waiting order to the user.
+     * Shows the oldest waiting order to the user (FIFO).
      */
     public void showRandomCommande() {
         List<Commande> waiting = commandeController.getWaitingCommands();
@@ -163,11 +173,11 @@ public class OrderBoard extends javax.swing.JFrame {
             // Refill the waiting commands if empty
             commandeController.initWaitingCommand();
             waiting = commandeController.getWaitingCommands();
-            updateOrderLists(); // <-- Add this line to refresh the UI
+            updateOrderLists();
         }
         if (!waiting.isEmpty()) {
-            int idx = (int) (Math.random() * waiting.size());
-            currentCommande = waiting.get(idx);
+            // FIFO: get the first command in the list
+            currentCommande = waiting.get(0);
             setCurrentCommand(currentCommande.toString());
         } else {
             currentCommande = null;
@@ -434,9 +444,11 @@ public class OrderBoard extends javax.swing.JFrame {
 
         getContentPane().add(Centre, java.awt.BorderLayout.CENTER);
 
+        // Make the right panel (Droite) scrollable to ensure all content is visible
+        Droite = new javax.swing.JPanel();
         Droite.setMinimumSize(new java.awt.Dimension(34, 34));
-        Droite.setPreferredSize(new java.awt.Dimension(280, 759));
-        Droite.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 30));
+        Droite.setPreferredSize(new java.awt.Dimension(320, 800)); // Slightly wider for more space
+        Droite.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 10));
 
         btInventaire.setText("INVENTAIRE");
         btInventaire.setMargin(new java.awt.Insets(2, 32, 2, 32));
@@ -490,7 +502,13 @@ public class OrderBoard extends javax.swing.JFrame {
 
         Droite.add(jScrollPane3);
 
-        getContentPane().add(Droite, java.awt.BorderLayout.EAST);
+        // Instead of adding Droite directly, wrap it in a JScrollPane:
+        JScrollPane droiteScrollPane = new JScrollPane(Droite);
+        droiteScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        droiteScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        droiteScrollPane.getVerticalScrollBar().setUnitIncrement(16); // smoother scrolling
+
+        getContentPane().add(droiteScrollPane, java.awt.BorderLayout.EAST);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -868,7 +886,7 @@ public class OrderBoard extends javax.swing.JFrame {
         }
 
         // Reset wallet
-        solde = 10000.0;
+        solde = 200.0;
         setSolde(solde);
 
         // Clear notifications

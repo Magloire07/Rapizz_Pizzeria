@@ -24,15 +24,21 @@ public class Accueil extends javax.swing.JFrame {
             try { conn.close(); } catch (Exception e) { e.printStackTrace(); }
         }
 
+        // Remove the lambda for playButton to avoid double opening
+        // PLAY button: just continues (does NOT reset tables)
+        // playButton.addActionListener(e -> {
+        //     OrderBoard board = new OrderBoard();
+        //     board.setVisible(true);
+        //     this.setVisible(false);
+        // });
+
         // New Game button: resets everything
         newGameButton.addActionListener(e -> {
             OrderBoard board = new OrderBoard();
-            board.resetGame();
+            board.resetGame(); // This will clear tables and reset everything
             board.setVisible(true);
             this.setVisible(false);
         });
-
-        // PLAY button: just continues (already handled in playButtonActionPerformed)
     }
 
     /**
