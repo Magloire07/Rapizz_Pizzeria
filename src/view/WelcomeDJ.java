@@ -99,9 +99,8 @@ public class WelcomeDJ extends java.awt.Dialog {
         OrderBoardController controller = new OrderBoardController();
         CommandController cmdController = new CommandController();
         controller.initOrderBoard(wind);
-        wind.setListCmdAttent();
+        wind.updateOrderLists(); // <-- Use this instead of setListCmdAttent()
         cmdController.initWaitingCommand();
-        cmdController.setCurrentCommand(wind);
         wind.setLocation(100,100);// definition de sa position par rapport au coins supérieur gauche de l'écran
         wind.setVisible(true);    //  jDialog rendu visible 
         setVisible(false);

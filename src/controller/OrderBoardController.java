@@ -10,7 +10,8 @@ public class OrderBoardController {
     {   this.ob=wind;
         OrderBoardManager orderBoardManager = new OrderBoardManager();
         wind.setSolde(orderBoardManager.getSolde());
-        wind.setListPizza(orderBoardManager.getListPizza());
+        // wind.setListPizza(orderBoardManager.getListPizza());
     }
     
 }
+ 

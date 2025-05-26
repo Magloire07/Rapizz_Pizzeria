@@ -3,6 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package view;
+ 
+import javax.swing.JButton;
+import utils.DatabaseManager;
+import java.sql.Connection;
 
 
 public class Accueil extends javax.swing.JFrame {
@@ -12,6 +16,29 @@ public class Accueil extends javax.swing.JFrame {
      */
     public Accueil() {
         initComponents();
+
+        // Test database connection
+        Connection conn = DatabaseManager.getConnection();
+        if (conn != null) {
+            System.out.println("Connected from Accueil!");
+            try { conn.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
+
+        // Remove the lambda for playButton to avoid double opening
+        // PLAY button: just continues (does NOT reset tables)
+        // playButton.addActionListener(e -> {
+        //     OrderBoard board = new OrderBoard();
+        //     board.setVisible(true);
+        //     this.setVisible(false);
+        // });
+
+        // New Game button: resets everything
+        newGameButton.addActionListener(e -> {
+            OrderBoard board = new OrderBoard();
+            board.resetGame(); // This will clear tables and reset everything
+            board.setVisible(true);
+            this.setVisible(false);
+        });
     }
 
     /**
@@ -39,7 +66,7 @@ public class Accueil extends javax.swing.JFrame {
         getContentPane().add(jLabel1);
 
         jPanel1.setOpaque(false); // Make the panel transparent
-        jPanel1.setLayout(new java.awt.GridLayout(3, 1, 0, 8));
+        jPanel1.setLayout(new java.awt.GridLayout(2, 1, 0, 8)); // Only 2 buttons
         jPanel1.setBounds(320, 210, 620, 460); // Set bounds for the panel
 
         playButton.setBackground(new java.awt.Color(204, 255, 204));
@@ -62,23 +89,15 @@ public class Accueil extends javax.swing.JFrame {
         newGameButton.setBorderPainted(false);
         jPanel1.add(newGameButton);
 
-        myRestoButton.setBackground(new java.awt.Color(255, 204, 153));
-        myRestoButton.setFont(new java.awt.Font("Liberation Sans", 1, 24)); // NOI18N
-        myRestoButton.setText("MY RESTO");
-        myRestoButton.setBorder(null);
-        myRestoButton.setBorderPainted(false);
-        jPanel1.add(myRestoButton);
-
         getContentPane().add(jPanel1); // Add the panel after the background image
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
-        // TODO add your handling code here:
-        WelcomeDJ  wind= new WelcomeDJ(this,true); 
-        wind.setLocation(100,100);// definition de sa position par rapport au coins supérieur gauche de l'écran
-        wind.setVisible(true);    //  jDialog rendu visible 
+    private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        OrderBoard board = new OrderBoard();
+        board.setVisible(true);
+        this.setVisible(false);
     }//GEN-LAST:event_playButtonActionPerformed
 
 

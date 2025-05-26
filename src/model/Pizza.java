@@ -51,7 +51,7 @@ public class Pizza {
     public String getIconPath() {
         return iconPath;
     }
-
+ 
     public void setIconPath(String iconPath) {
         this.iconPath = iconPath;
     }

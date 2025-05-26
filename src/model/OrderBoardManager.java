@@ -1,21 +1,31 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class OrderBoardManager {
-    
-    public float getSolde() {
-        //TODO: Récupérer le solde de la base de données
-        return 100.0f; // Example value
-    }
-    public ArrayList<Pizza> getListPizza() {
-        //TODO: Récupérer la liste des pizzas de la base de données
-        //Exemple d'ajout de pizzas pour la démonstration
-        ArrayList<Pizza> pizzas = new ArrayList<>();
-        pizzas.add(new Pizza(1, "Margherita", 8.99, "Medium", "Margherita.jpeg"));
-        pizzas.add(new Pizza(2, "Parma", 9.99, "Large", "parma.jpeg"));
-        pizzas.add(new Pizza(1, "Margherita", 8.99, "Medium", "Margherita.jpeg"));
 
-        return pizzas;
+    public float getSolde() {
+        ClientDAO clientDAO = new ClientDAO();
+        try {
+            List<Client> clients = clientDAO.readAllClientsAsObjects();
+            if (!clients.isEmpty()) {
+                return (float) clients.get(0).getSolde();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0f;
+    }
+
+    public ArrayList<Pizza> getListPizza() {
+        PIzzaDAO pizzaDAO = new PIzzaDAO();
+        try {
+            return pizzaDAO.readAllPizzasAsObjects();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 }
+ 
