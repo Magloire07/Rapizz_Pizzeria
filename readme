@@ -1,9 +1,73 @@
-############## Compilation ##########################
+############## Guide d'installation et d'exécution ##########################
 
+# Prérequis
+
+Java JDK 17 ou version plus récente installé (https://adoptopenjdk.net/)
+
+Serveur MySQL installé et en cours d’exécution (https://dev.mysql.com/downloads/mysql/)
+
+(Optionnel) Git si vous souhaitez cloner le dépôt
+
+Cloner ou Télécharger le Projet
+
+```bash
+git clone <repo-url>
+cd Rapizz_Pizzeria
+
+```
+# Configurer MySQL
+
+Assurez-vous que MySQL est en cours d’exécution.
+
+Par défaut, l’application s’attend à :
+
+Hôte : 127.0.0.1
+
+Port : 3306
+
+Utilisateur : root
+
+Mot de passe : 316MIQq~+X
+
+Vous pouvez modifier ces informations dans src/utils/DatabaseInitializer.java si nécessaire.
+
+Télécharger le Driver JDBC MySQL
+
+Le driver requis (mysql-connector-java-9.3.0.jar) est déjà présent dans le dossier lib/.
+
+S'il manque, téléchargez-le depuis : https://dev.mysql.com/downloads/connector/j/
+
+# Compiler le Projet
+
+```bash
+javac -cp .:lib/mysql-connector-java-9.3.0.jar -d build $(find src -name "*.java") && cp -r src/images build/
+```
+
+# Exécuter le Programme
+
+```bash
+java -cp lib/mysql-connector-java-9.3.0.jar:build main.Main
+```
+
+# Initialisation de la Base de Données
+
+Au premier lancement, le programme créera automatiquement la base de données et les tables, et insérera les données initiales.
+
+Si vous souhaitez réinitialiser la base de données, supprimez la base rapizz_pizzeria dans MySQL et relancez le programme.
+
+############## Anciennes Commandes ##########################
+
+```bash
 javac -d build $(find src -name "*.java") && cp -r src/images build/
-(with database connexion) javac -cp .:lib/mysql-connector-java-9.3.0.jar -d build $(find src -name "*.java") && cp -r src/images build/
-
-#############  Exécution   ############################
-
 java -cp build main.Main
-(with database connexion) java -cp lib/mysql-connector-java-9.3.0.jar:build main.Main
+```
+
+
+
+
+
+
+
+
+
+
