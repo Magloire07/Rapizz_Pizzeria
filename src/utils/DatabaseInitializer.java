@@ -1,14 +1,10 @@
 package utils;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import model.BaseModel; // Ajoute cette importation
+import model.BaseModel;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -22,8 +18,71 @@ public class DatabaseInitializer extends BaseModel {
 
     public static void initialize() {
         try (Connection conn = new DatabaseInitializer().getConnection()) {
-            // Ensure Composer table exists FIRST
+            Statement stDrop = conn.createStatement();
+            // Drop tables if they exist to avoid column mismatch
+            stDrop.executeUpdate("DROP TABLE IF EXISTS livreurs");
+            stDrop.executeUpdate("DROP TABLE IF EXISTS pizzaiolos");
+            // You may also want to drop other tables if you change their structure
+            // stDrop.executeUpdate("DROP TABLE IF EXISTS ...");
+
             Statement stCreate = conn.createStatement();
+
+            // --- CREATE ALL TABLES BEFORE USING THEM ---
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS Client (" +
+                "idClient INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nom VARCHAR(100), " +
+                "prenom VARCHAR(100), " +
+                "adresse VARCHAR(255), " +
+                "solde DOUBLE, " +
+                "cagnote INT" +
+                ")"
+            );
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS pizzaiolos (" +
+                "id_pizzaiolo INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nom VARCHAR(100), " +
+                "prenom VARCHAR(100), " +
+                "nombre_pizzas INT" +
+                ")"
+            );
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS vehicules (" +
+                "id_vehicule INT AUTO_INCREMENT PRIMARY KEY, " +
+                "marque VARCHAR(100), " +
+                "modele VARCHAR(100), " +
+                "type VARCHAR(50), " +
+                "disponible BOOLEAN" +
+                ")"
+            );
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS livreurs (" +
+                "id_livreur INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nom VARCHAR(100), " +
+                "prenom VARCHAR(100), " +
+                "nombre_livraisons INT, " +
+                "duree_livraisons INT, " +
+                "id_vehicule INT, " +
+                "FOREIGN KEY (id_vehicule) REFERENCES vehicules(id_vehicule)" +
+                ")"
+            );
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS Pizza (" +
+                "idPizza INT PRIMARY KEY, " +
+                "nom VARCHAR(100), " +
+                "prix DOUBLE, " +
+                "taille VARCHAR(5), " +
+                "iconPath VARCHAR(255)" +
+                ")"
+            );
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS Ingredient (" +
+                "idIngredient INT AUTO_INCREMENT PRIMARY KEY, " +
+                "name VARCHAR(100), " +
+                "quantity INT, " +
+                "price DOUBLE" +
+                ")"
+            );
             stCreate.executeUpdate(
                 "CREATE TABLE IF NOT EXISTS Composer (" +
                 "idPizza INT, " +
@@ -31,6 +90,17 @@ public class DatabaseInitializer extends BaseModel {
                 "PRIMARY KEY (idPizza, idIngredient), " +
                 "FOREIGN KEY (idPizza) REFERENCES Pizza(idPizza), " +
                 "FOREIGN KEY (idIngredient) REFERENCES Ingredient(idIngredient)" +
+                ")"
+            );
+            stCreate.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS Commande (" +
+                "idCommande INT AUTO_INCREMENT PRIMARY KEY, " +
+                "idClient INT, " +
+                "idPizza INT, " +
+                "dateCommande DATETIME, " +
+                "taille VARCHAR(5), " +
+                "FOREIGN KEY (idClient) REFERENCES Client(idClient), " +
+                "FOREIGN KEY (idPizza) REFERENCES Pizza(idPizza)" +
                 ")"
             );
 
@@ -57,6 +127,7 @@ public class DatabaseInitializer extends BaseModel {
                 ps.executeUpdate();
             }
             // Véhicules (doit être AVANT les livreurs)
+            int vehiculeId = -1;
             if (isTableEmpty(conn, "vehicules")) {
                 PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO vehicules (marque, modele, type, disponible) VALUES (?, ?, ?, ?)",
@@ -70,24 +141,31 @@ public class DatabaseInitializer extends BaseModel {
 
                 // Récupère l'id généré pour l'utiliser pour le livreur
                 ResultSet rs = ps.getGeneratedKeys();
-                int vehiculeId = 1;
                 if (rs.next()) {
                     vehiculeId = rs.getInt(1);
                 }
-
-                // Livreurs (après véhicules)
-                if (isTableEmpty(conn, "livreurs")) {
-                    PreparedStatement psLiv = conn.prepareStatement(
-                        "INSERT INTO livreurs (nom, prenom, nombre_livraisons, duree_livraisons, id_vehicule) VALUES (?, ?, ?, ?, ?)"
-                    );
-                    psLiv.setString(1, "Paul");
-                    psLiv.setString(2, "Martin");
-                    psLiv.setInt(3, 0);
-                    psLiv.setInt(4, 0);
-                    psLiv.setInt(5, vehiculeId);
-                    psLiv.executeUpdate();
+            } else {
+                // Si déjà présent, prend le premier id existant
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery("SELECT id_vehicule FROM vehicules LIMIT 1");
+                if (rs.next()) {
+                    vehiculeId = rs.getInt("id_vehicule");
                 }
             }
+
+            // Livreurs (après véhicules)
+            if (vehiculeId != -1 && isTableEmpty(conn, "livreurs")) {
+                PreparedStatement psLiv = conn.prepareStatement(
+                    "INSERT INTO livreurs (nom, prenom, nombre_livraisons, duree_livraisons, id_vehicule) VALUES (?, ?, ?, ?, ?)"
+                );
+                psLiv.setString(1, "Paul");
+                psLiv.setString(2, "Martin");
+                psLiv.setInt(3, 0);
+                psLiv.setInt(4, 0);
+                psLiv.setInt(5, vehiculeId);
+                psLiv.executeUpdate();
+            }
+
             // Ingrédients de base
             if (isTableEmpty(conn, "Ingredient")) {
                 PreparedStatement ps = conn.prepareStatement(
@@ -118,74 +196,43 @@ public class DatabaseInitializer extends BaseModel {
                 ps.executeUpdate();
             }
 
-            // Pizzas de base
+            // Pizzas de base (avec id imposé)
             if (isTableEmpty(conn, "Pizza")) {
                 PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO Pizza (nom, prix, taille, iconPath) VALUES (?, ?, ?, ?)");
-                // Margherita
-                ps.setString(1, "Margherita");
-                ps.setDouble(2, 8.0);
-                ps.setString(3, "M");
-                ps.setString(4, "Margherita.jpeg");
+                    "INSERT INTO Pizza (idPizza, nom, prix, taille, iconPath) VALUES (?, ?, ?, ?, ?)");
+                ps.setInt(1, 571);
+                ps.setString(2, "Margherita");
+                ps.setDouble(3, 8.0);
+                ps.setString(4, "M");
+                ps.setString(5, "Margherita.jpeg");
                 ps.executeUpdate();
-                // 4 Fromages
-                ps.setString(1, "4 Fromages");
-                ps.setDouble(2, 10.0);
-                ps.setString(3, "M");
-                ps.setString(4, "4Fromages.jpg");
+
+                ps.setInt(1, 572);
+                ps.setString(2, "4 Fromages");
+                ps.setDouble(3, 10.0);
+                ps.setString(4, "M");
+                ps.setString(5, "4Fromages.jpg");
                 ps.executeUpdate();
-                // Diavola
-                ps.setString(1, "Diavola");
-                ps.setDouble(2, 11.0);
-                ps.setString(3, "M");
-                ps.setString(4, "Diavola.jpeg");
+
+                ps.setInt(1, 573);
+                ps.setString(2, "Diavola");
+                ps.setDouble(3, 11.0);
+                ps.setString(4, "M");
+                ps.setString(5, "Diavola.jpeg");
                 ps.executeUpdate();
-                // Parma
-                ps.setString(1, "Parma");
-                ps.setDouble(2, 12.0);
-                ps.setString(3, "M");
-                ps.setString(4, "Parma.jpeg");
+
+                ps.setInt(1, 574);
+                ps.setString(2, "Parma");
+                ps.setDouble(3, 12.0);
+                ps.setString(4, "M");
+                ps.setString(5, "Parma.jpeg");
                 ps.executeUpdate();
             }
-            // Ajoute ce bloc pour forcer la réinitialisation
-            else {
-                Statement st = conn.createStatement();
-                // Delete dependent rows first
-                st.executeUpdate("DELETE FROM Commande");
-                st.executeUpdate("DELETE FROM Composer");
-                st.executeUpdate("DELETE FROM Pizza");
-                PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO Pizza (nom, prix, taille, iconPath) VALUES (?, ?, ?, ?)");
-                // Margherita
-                ps.setString(1, "Margherita");
-                ps.setDouble(2, 8.0);
-                ps.setString(3, "M");
-                ps.setString(4, "Margherita.jpeg");
-                ps.executeUpdate();
-                // 4 Fromages
-                ps.setString(1, "4 Fromages");
-                ps.setDouble(2, 10.0);
-                ps.setString(3, "M");
-                ps.setString(4, "4Fromages.jpg");
-                ps.executeUpdate();
-                // Diavola
-                ps.setString(1, "Diavola");
-                ps.setDouble(2, 11.0);
-                ps.setString(3, "M");
-                ps.setString(4, "Diavola.jpeg");
-                ps.executeUpdate();
-                // Parma
-                ps.setString(1, "Parma");
-                ps.setDouble(2, 12.0);
-                ps.setString(3, "M");
-                ps.setString(4, "Parma.jpeg");
-                ps.executeUpdate();
 
-                // Après (re)insertion des pizzas, toujours reset Composer
-                Statement st2 = conn.createStatement();
-                st2.executeUpdate("DELETE FROM Composer");
-
+            // Remplissage de Composer si vide
+            if (isTableEmpty(conn, "Composer")) {
                 // Récupère les id des pizzas et ingrédients
+                Statement st2 = conn.createStatement();
                 ResultSet rsPizza = st2.executeQuery("SELECT idPizza, nom FROM Pizza");
                 Map<String, Integer> pizzaIds = new HashMap<>();
                 while (rsPizza.next()) {
