@@ -26,14 +26,21 @@ cd Rapizz_Pizzeria
 
 ### ⚙️ Configurer MySQL
 
+
 - Assurez-vous que MySQL est en cours d’exécution.
 - **Paramètres par défaut** :
-  - **Hôte** : `127.0.0.1`
+  - **Hôte** : `localhost`
   - **Port** : `3306`
-  - **Utilisateur** : `root`
-  - **Mot de passe** : `316MIQq~+X`
+  - **Utilisateur** : `rapizz`
+  - **Mot de passe** : `pizza123`
+
+# Ajout de l'utilisateur de la base (sous Debian)
+  - mysql -u root -p
+  - CREATE USER 'rapizz'@'localhost' IDENTIFIED BY 'pizza123';
+  - GRANT ALL PRIVILEGES ON rapizz_pizzeria.* TO 'rapizz'@'localhost';
+  - FLUSH PRIVILEGES;
 - Vous pouvez modifier ces informations dans  
-  `src/utils/DatabaseInitializer.java` si nécessaire.
+  `src/utils/DatabaseInitializer.java`, `src/utils/DatabaseManager.java`, `src/modelBaseModel.java` si nécessaire.
 
 ---
 
