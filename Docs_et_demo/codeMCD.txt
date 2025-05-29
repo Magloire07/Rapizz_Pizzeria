@@ -1,0 +1,16 @@
+COMMANDER, 11 COMMANDE, 0N PIZZA : taille_pizza
+PIZZA: id_pizza, nom, prix_base
+COMPOSER, 1N PIZZA, 0N INGRÉDIENT
+INGRÉDIENT: id_ingredient, nom, allergene
+
+:
+COMMANDE: num_commande, date_commande, montant
+LIVRER, 11 COMMANDE, 11 LIVRAISON
+LIVREUR: id_livreur, nom, prénom, nombre_livraisons, duree_livraisons
+:
+
+CLIENT: numero_abonne, nom, prénom, adresse, solde, nombre_commandes
+EFFECTUER, 1N CLIENT, 11 COMMANDE
+LIVRAISON: id_livraison, date_livraison, duree_minutes, adresse_livraison
+UTILISER, 11 LIVRAISON, 0N LIVREUR, 0N VEHICULE
+VEHICULE: id_vehicule, type, immatriculation, nombre_livraisons, duree
