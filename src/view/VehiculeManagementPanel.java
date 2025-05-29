@@ -14,9 +14,11 @@ public class VehiculeManagementPanel extends JPanel {
     private final JTextField modeleField;
     private final JTextField typeField;
     private final JCheckBox disponibleCheckBox;
+    private final OrderBoard orderBoard;
 
-    public VehiculeManagementPanel() {
+    public VehiculeManagementPanel( OrderBoard orderBoard) {
         this.controller = new VehiculeController();
+        this.orderBoard = orderBoard;
 
         setLayout(new BorderLayout());
 
@@ -31,17 +33,18 @@ public class VehiculeManagementPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
 
         // Form panel
-        JPanel formPanel = new JPanel(new GridLayout(1, 8, 5, 5));
+        JPanel formPanel = new JPanel(new GridLayout(2, 4, 5, 5));
         marqueField = new JTextField();
         modeleField = new JTextField();
         typeField = new JTextField();
         disponibleCheckBox = new JCheckBox("Disponible");
 
         formPanel.add(new JLabel("Marque:"));
-        formPanel.add(marqueField);
         formPanel.add(new JLabel("Modèle:"));
-        formPanel.add(modeleField);
         formPanel.add(new JLabel("Type:"));
+        formPanel.add(new JLabel("Disponibilité:"));
+        formPanel.add(marqueField);
+        formPanel.add(modeleField);
         formPanel.add(typeField);
         formPanel.add(disponibleCheckBox);
 
@@ -71,14 +74,18 @@ public class VehiculeManagementPanel extends JPanel {
             String modele = modeleField.getText().trim();
             String type = typeField.getText().trim();
             boolean disponible = disponibleCheckBox.isSelected();
-            double coutVehicule = 500.0; // Exemple de coût
-            OrderBoard mainBoard = (OrderBoard) SwingUtilities.getWindowAncestor(this);
-            if (mainBoard.getSolde() < coutVehicule) {
-                JOptionPane.showMessageDialog(this, "Solde insuffisant pour acheter un véhicule.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            double coutVehicule = 50.0; // Exemple de coût
+            if (this.orderBoard!= null) {
+                if (orderBoard.getSolde() < coutVehicule) {
+                    JOptionPane.showMessageDialog(this, "Solde insuffisant pour acheter un véhicule.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                orderBoard.setSolde(orderBoard.getSolde() - coutVehicule);
+                orderBoard.addNotification("-" + coutVehicule + "€ (achat véhicule)");
+            } else {
+                JOptionPane.showMessageDialog(this, "Impossible de trouver le panneau principal.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            mainBoard.setSolde(mainBoard.getSolde() - coutVehicule);
-            mainBoard.addNotification("-" + coutVehicule + "€ (achat véhicule)");
             controller.addVehicule(marque, modele, type, disponible);
             refreshTable();
             clearFields();

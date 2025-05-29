@@ -6,6 +6,8 @@ package controller;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class FicheLivraisonControlle {
@@ -33,15 +35,18 @@ public class FicheLivraisonControlle {
     private String getDeliveryDetails() {
         // Example data for three delivery persons, replace with actual data retrieval logic
         StringBuilder sb = new StringBuilder();
-      // DOTO
         String[][] deliveries = {
-            {"John Doe", "Motorbike", "Jane Smith", "2023-10-01T18:30", "10 minutes", "Pepperoni", "10.0"},
-            {"Alice Brown", "Bicycle", "Robert Johnson", "2023-10-02T12:15", "No delay", "Margherita", "8.5"},
-            {"Michael Green", "Car", "Emily Davis", "2023-10-03T20:45", "5 minutes", "Vegetarian", "9.0"}
+            {"Paul", "Scooter", "Martin", /* date placeholder */ "", "0 minutes", "4Fromage", "10.0"},
+            {"Paul", "Scooter", "Martin", /* date placeholder */ "", "1 minutes", "Margherita", "6.7"},
+            {"Paul", "Scooter", "Martin", /* date placeholder */ "", "0 minutes", "Parma", "13.3"}
         };
- 
+
+        // Get current date and time as string
+        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+
         sb.append("  === Fiche de Livraison ===\n\n");
         for (String[] delivery : deliveries) {
+            delivery[3] = currentDate; // Set current date for each delivery
             sb.append(String.format(
                 " ----------------------------------------\n" +
                 " Nom du livreur     : %s\n" +

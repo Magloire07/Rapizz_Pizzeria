@@ -355,7 +355,7 @@ public class OrderBoard extends javax.swing.JFrame {
 
         detailPiz1.setColumns(20);
         detailPiz1.setRows(5);
-        detailPiz1.setText("Margherita\n15€");
+        detailPiz1.setText("Margherita\n6.7€");
         detailPiz1.setAutoscrolls(false);
         detailPiz1.setFocusable(false);
         jScrollPane5.setViewportView(detailPiz1);
@@ -551,19 +551,19 @@ public class OrderBoard extends javax.swing.JFrame {
 
     private void photoPizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photoPizActionPerformed
         // Select the first pizza (example: Margherita)
-        selectedPizza = new Pizza(1, "Margherita", 15.0, "Margherita.jpeg", "S");
+        selectedPizza = new Pizza(1, "Margherita", 6.7, "Margherita.jpeg", "S");
         JOptionPane.showMessageDialog(this, "Pizza Margherita sélectionnée !");
     }//GEN-LAST:event_photoPizActionPerformed
 
     private void photoPiz1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photoPiz1ActionPerformed
         // Select the second pizza (example: Regina)
-        selectedPizza = new Pizza(2, "Regina", 18.0, "Regina.jpeg", "S");
+        selectedPizza = new Pizza(2, "Regina", 6.7, "Regina.jpeg", "S");
         JOptionPane.showMessageDialog(this, "Pizza Regina sélectionnée !");
     }//GEN-LAST:event_photoPiz1ActionPerformed
 
     private void photoPiz2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_photoPiz2ActionPerformed
         // Select the third pizza (example: 4 Fromages)
-        selectedPizza = new Pizza(3, "4 Fromages", 20.0, "4Fromages.jpeg", "S");
+        selectedPizza = new Pizza(3, "4 Fromages", 10.0, "4Fromages.jpeg", "M");
         JOptionPane.showMessageDialog(this, "Pizza 4 Fromages sélectionnée !");
     }//GEN-LAST:event_photoPiz2ActionPerformed
 
@@ -586,7 +586,10 @@ public class OrderBoard extends javax.swing.JFrame {
         flivs.showFicheLivraison(); 
     }//GEN-LAST:event_btFicheActionPerformed
     public void setSolde(double solde) {
+        this.solde = solde;
         soldeText.setText("Solde Actuel: " + solde + "€");
+        this.revalidate();
+        this.repaint();
     }
 
     public void setCurrentCommand(String commande) {
@@ -807,10 +810,10 @@ public class OrderBoard extends javax.swing.JFrame {
     private double getPrixCommande(Commande commande) {
         // À adapter selon ta logique métier
         // Exemple : prix fixe ou récupération depuis la pizza
-        if (commande.getNomPizza().equals("Margherita")) return 8.0;
+        if (commande.getNomPizza().equals("Margherita")) return 6.7;
         if (commande.getNomPizza().equals("4 Fromages")) return 10.0;
-        if (commande.getNomPizza().equals("Diavola")) return 11.0;
-        if (commande.getNomPizza().equals("Parma")) return 11.0;
+        if (commande.getNomPizza().equals("Diavola")) return 13.3;
+        if (commande.getNomPizza().equals("Parma")) return 13.3;
         return 9.0; // prix par défaut
     }
 
@@ -862,10 +865,10 @@ public class OrderBoard extends javax.swing.JFrame {
     private void initPizzaPanel() {
         CCentreListPizza.removeAll();
         CCentreListPizza.setLayout(new java.awt.GridLayout(4, 1, 0, 5));
-        addPizzaButton("Margherita", 8.0, "S", "Margherita.jpeg");
+        addPizzaButton("Margherita", 6.7, "S", "Margherita.jpeg");
         addPizzaButton("4 Fromages", 10.0, "S", "4Fromages.jpg");
-        addPizzaButton("Diavola", 11.0, "S", "diavola.jpeg");
-        addPizzaButton("Parma", 11.0, "S", "parma.jpeg");
+        addPizzaButton("Diavola", 13.3, "S", "diavola.jpeg");
+        addPizzaButton("Parma", 13.3, "S", "parma.jpeg");
         CCentreListPizza.revalidate();
         CCentreListPizza.repaint();
     }

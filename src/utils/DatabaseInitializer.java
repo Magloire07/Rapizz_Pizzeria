@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class DatabaseInitializer extends BaseModel {
-    
+
     private static final String URL = "jdbc:mysql://localhost:3306/?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USER = "rapizz";
     private static final String PASSWORD = "pizza123";
@@ -215,8 +215,8 @@ public class DatabaseInitializer extends BaseModel {
                         "INSERT INTO Pizza (idPizza, nom, prix, taille, iconPath) VALUES (?, ?, ?, ?, ?)");
                     ps.setInt(1, 571);
                     ps.setString(2, "Margherita");
-                    ps.setDouble(3, 8.0);
-                    ps.setString(4, "M");
+                    ps.setDouble(3, 6.7);
+                    ps.setString(4, "S");
                     ps.setString(5, "Margherita.jpeg");
                     ps.executeUpdate();
 
@@ -229,15 +229,15 @@ public class DatabaseInitializer extends BaseModel {
 
                     ps.setInt(1, 573);
                     ps.setString(2, "Diavola");
-                    ps.setDouble(3, 11.0);
+                    ps.setDouble(3, 10.0);
                     ps.setString(4, "M");
                     ps.setString(5, "Diavola.jpeg");
                     ps.executeUpdate();
 
                     ps.setInt(1, 574);
                     ps.setString(2, "Parma");
-                    ps.setDouble(3, 12.0);
-                    ps.setString(4, "M");
+                    ps.setDouble(3, 13.3);
+                    ps.setString(4, "L");
                     ps.setString(5, "Parma.jpeg");
                     ps.executeUpdate();
                 }
@@ -311,6 +311,14 @@ public class DatabaseInitializer extends BaseModel {
         }
     }
 
+    public static void ClearDatabase() {
+        try (Connection conn = java.sql.DriverManager.getConnection("jdbc:mysql://localhost:3306/" + DB_NAME, USER, PASSWORD)) {
+            Statement st = conn.createStatement();
+            st.executeUpdate("DROP DATABASE IF EXISTS " + DB_NAME);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la suppression de la base de données.");
+            e.printStackTrace();
+        }}
     private static boolean isTableEmpty(Connection conn, String table) throws Exception {
         ResultSet rs = conn.createStatement().executeQuery("SELECT COUNT(*) FROM " + table);
         rs.next();

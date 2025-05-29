@@ -30,16 +30,17 @@ public class LivreurManagementPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
 
         // Form panel
-        JPanel formPanel = new JPanel(new GridLayout(2, 4, 5, 5));
+        JPanel formPanel = new JPanel(new GridLayout(2, 3, 5, 5));
         nomField = new JTextField();
         prenomField = new JTextField();
         idVehiculeField = new JTextField();
 
+
         formPanel.add(new JLabel("Nom:"));
-        formPanel.add(nomField);
         formPanel.add(new JLabel("Prénom:"));
-        formPanel.add(prenomField);
         formPanel.add(new JLabel("ID Véhicule:"));
+        formPanel.add(nomField);
+        formPanel.add(prenomField);
         formPanel.add(idVehiculeField);
 
         // Buttons panel

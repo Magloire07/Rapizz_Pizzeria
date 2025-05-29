@@ -34,6 +34,7 @@ public class Accueil extends javax.swing.JFrame {
 
         // New Game button: resets everything
         newGameButton.addActionListener(e -> {
+            ClearDB();
             OrderBoard board = new OrderBoard();
             board.resetGame(); // This will clear tables and reset everything
             board.setVisible(true);
@@ -41,6 +42,11 @@ public class Accueil extends javax.swing.JFrame {
         });
     }
 
+    private void ClearDB() {
+
+        utils.DatabaseInitializer.ClearDatabase();
+
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

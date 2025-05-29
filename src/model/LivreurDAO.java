@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 public class LivreurDAO extends BaseModel {
 
     public List<Livreur> readAllLivreurs() {
@@ -41,6 +43,7 @@ public class LivreurDAO extends BaseModel {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout du livreur : veillez consulter la liste  des ID des véhicules disponibles " );
         }
     }
 

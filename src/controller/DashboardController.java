@@ -82,7 +82,7 @@ public class DashboardController {
 
     private String getWorstDeliveryPerson() {
         // No LivreurDAO/model in your folder, so return a placeholder
-        return "Aucune donnée sur les livreurs.";
+        return " ";
     }
 
     private String getMostOrLeastDemandedPizza(boolean mostDemanded) {
@@ -141,7 +141,7 @@ public class DashboardController {
 
     private String getUnusedVehicles() {
         // No VehicleDAO/model in your folder, so return a placeholder
-        return "Aucune donnée sur les véhicules.";
+        return " ";
     }
 
     private String getOrdersPerClient() {

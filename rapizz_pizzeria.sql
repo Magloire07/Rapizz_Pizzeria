@@ -149,7 +149,7 @@ CREATE TABLE `Pizza` (
 
 LOCK TABLES `Pizza` WRITE;
 /*!40000 ALTER TABLE `Pizza` DISABLE KEYS */;
-INSERT INTO `Pizza` VALUES (571,'Margherita',8,'M','Margherita.jpeg'),(572,'4 Fromages',10,'M','4Fromages.jpg'),(573,'Diavola',11,'M','Diavola.jpeg'),(574,'Parma',12,'M','Parma.jpeg');
+INSERT INTO `Pizza` VALUES (571,'Margherita',6.7,'M','Margherita.jpeg'),(572,'4 Fromages',10,'M','4Fromages.jpg'),(573,'Diavola',13.3,'M','Diavola.jpeg'),(574,'Parma',13.3,'M','Parma.jpeg');
 /*!40000 ALTER TABLE `Pizza` ENABLE KEYS */;
 UNLOCK TABLES;
 

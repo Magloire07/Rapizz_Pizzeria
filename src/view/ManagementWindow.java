@@ -14,7 +14,7 @@ public class ManagementWindow extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Livreurs", new LivreurManagementPanel());
-        tabbedPane.addTab("Véhicules", new VehiculeManagementPanel());
+        tabbedPane.addTab("Véhicules", new VehiculeManagementPanel(orderBoard));
         PizzaioloManagementPanel pizzaioloPanel = new PizzaioloManagementPanel(orderBoard);
         tabbedPane.addTab("Pizzaiolos", pizzaioloPanel);
 
