@@ -1,0 +1,20 @@
+Création des procédures:
+
+SOURCE Exo6_1_Extraction_Donnee_stockees.sql;
+SOURCE Exo6_2_Variables_de_Session.sql;
+SOURCE Exo6_3_Transaction.sql;
+
+
+Lancement du program
+
+CALL Exo6_1();
+SET @numSalle = 's01';
+SET @typePoste = 'UNIX';
+CALL Exo6_2();
+SET @numLog     = 'log15';
+SET @nomLog     = 'MySQL Query';
+SET @versionLog = '1.4';
+SET @typeLog    = 'PCWS';
+SET @prixLog    = 95;
+SET @posteCode  = 'p7';
+CALL Exo6_3();
